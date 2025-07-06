@@ -37,7 +37,7 @@ Here’s what’s next for Sonora:
   Multi-user voice rooms with mute/raise-hand features
 
 - 🧭 **Beacons (Servers)**  
-  Community spaces, similar to Discord servers or groups
+  Community spaces and servers
 
 - ⚙️ **User Settings**  
   Update email, password, notifications, privacy settings, and more
