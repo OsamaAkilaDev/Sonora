@@ -1,0 +1,196 @@
+@import 'tailwindcss';
+@theme {
+	--color-shade-900: #020202;
+	--color-shade-800: #141414;
+	--color-shade-700: #2c2c2c;
+	--color-shade-650: #3a3a3a;
+	--color-shade-640: #3f3f3f;
+	--color-shade-600: #8d8e8e;
+	--color-shade-500: #cbcbcb;
+
+	--color-cyanora-700: #006f7f;
+	--color-cyanora-600: #008698;
+	--color-cyanora-500: #0096aa;
+}
+
+* {
+	font-family: 'Rubik';
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.selectable {
+	-webkit-touch-callout: text;
+	-webkit-user-select: text;
+	-khtml-user-select: text;
+	-moz-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+}
+
+img {
+	pointer-events: none;
+}
+
+html {
+	scroll-behavior: smooth;
+}
+
+/* width */
+::-webkit-scrollbar {
+	width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+	@apply bg-shade-700 rounded-2xl;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+	background: #525252;
+	@apply rounded-2xl;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+	background: #797979;
+}
+
+.btn {
+	@apply bg-shade-700 hover:bg-shade-650;
+}
+
+.grid-layout {
+	display: grid;
+	grid-template-rows: 55px 1fr;
+	grid-template-columns: 270px 1fr;
+	padding: 8px;
+	gap: 8px;
+}
+
+.bubble {
+	@apply bg-shade-800 border-shade-700 rounded-lg border-[2px];
+}
+
+.navigation-bar {
+	@apply col-span-2 flex flex-row items-center justify-between px-3 py-2;
+}
+
+.navigation-left-menu,
+.navigation-middle-menu,
+.navigation-right-menu {
+	@apply flex h-full flex-row gap-[14px];
+}
+
+.masked-overflow {
+	/* scroll bar width, for use in mask calculations */
+	--scrollbar-width: 6.5px;
+
+	/* mask fade distance, for use in mask calculations */
+	--mask-height: 10px;
+
+	/* Need to make sure container has bottom space,
+  otherwise content at the bottom is always faded out */
+	padding-bottom: var(--mask-height);
+
+	/* The CSS mask */
+
+	/* The content mask is a linear gradient from top to bottom */
+	--mask-image-content: linear-gradient(
+		to bottom,
+		transparent,
+		black var(--mask-height),
+		black calc(100% - var(--mask-height)),
+		transparent
+	);
+
+	/* Here we scale the content gradient to the width of the container 
+  minus the scrollbar width. The height is the full container height */
+	--mask-size-content: calc(100% - var(--scrollbar-width)) 100%;
+
+	/* The scrollbar mask is a black pixel */
+	--mask-image-scrollbar: linear-gradient(black, black);
+
+	/* The width of our black pixel is the width of the scrollbar.
+  The height is the full container height */
+	--mask-size-scrollbar: var(--scrollbar-width) 100%;
+
+	/* Apply the mask image and mask size variables */
+	mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+	mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+
+	/* Position the content gradient in the top left, and the 
+  scroll gradient in the top right */
+	mask-position:
+		0 0,
+		100% 0;
+
+	/* We don't repeat our mask images */
+	mask-repeat: no-repeat, no-repeat;
+}
+
+.masked-chat-overflow {
+	/* scroll bar width, for use in mask calculations */
+	--scrollbar-width: 7px;
+
+	/* mask fade distance, for use in mask calculations */
+	--mask-height: 10px;
+
+	/* Need to make sure container has bottom space,
+  otherwise content at the bottom is always faded out */
+	padding-bottom: var(--mask-height);
+
+	/* The CSS mask */
+
+	/* The content mask is a linear gradient from top to bottom */
+	--mask-image-content: linear-gradient(
+		to bottom,
+		transparent,
+		black var(--mask-height),
+		black calc(100% - var(--mask-height)),
+		transparent
+	);
+
+	/* Here we scale the content gradient to the width of the container 
+  minus the scrollbar width. The height is the full container height */
+	--mask-size-content: calc(100% - var(--scrollbar-width)) 100%;
+
+	/* The scrollbar mask is a black pixel */
+	--mask-image-scrollbar: linear-gradient(black, black);
+
+	/* The width of our black pixel is the width of the scrollbar.
+  The height is the full container height */
+	--mask-size-scrollbar: var(--scrollbar-width) 100%;
+
+	/* Apply the mask image and mask size variables */
+	mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+	mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+
+	/* Position the content gradient in the top left, and the 
+  scroll gradient in the top right */
+	mask-position:
+		0 0,
+		100% 0;
+
+	/* We don't repeat our mask images */
+	mask-repeat: no-repeat, no-repeat;
+}
+
+.custom-input:-webkit-autofill {
+	transition: background-color 9999s ease-in-out 0s;
+	-webkit-text-fill-color: white !important;
+	box-shadow: 0 0 0px 1000px #2c2c2c inset !important; /* match your input bg */
+}
+
+.triangle-left {
+	width: 0;
+	height: 0;
+	border-top: 7px solid transparent;
+	border-bottom: 7px solid transparent;
+	border-right: 10px solid #3a3a3a; /* this is the visible side */
+}
