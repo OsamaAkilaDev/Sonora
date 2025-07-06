@@ -50,15 +50,3 @@ Here’s what’s next for Sonora:
 ## 💡 Vision
 
 Sonora aims to be more than a chat app — it’s a **community-first communication hub**, built with flexibility and privacy in mind. Whether you're connecting with a friend or collaborating with a team, Sonora will be the bridge.
-
----
-
-## 🛠️ Tech Stack
-
-> _(Note: Tech stack may evolve as the project grows)_
-
-- **Frontend:** Svelte / Tailwind CSS _(or your current stack)_
-- **Backend:** Laravel (PHP) / Node.js / WebSockets
-- **Database:** MySQL / PostgreSQL
-- **Authentication:** JWT / Laravel Sanctum
-- **Real-time:** Laravel Echo + WebSockets / Pusher
