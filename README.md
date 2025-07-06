@@ -1,38 +1,64 @@
-# sv
+# 🎧 Sonora
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Welcome to **Sonora** — a modern, in-development web application for seamless **chatting and calling**, crafted with passion by **Osama Akila**.
 
-## Creating a project
+Sonora is built to connect people through real-time conversations, social features, and high-quality voice communication. Think of it as a future-ready communication platform that blends **simplicity**, **customization**, and **community**.
 
-If you're seeing this, you've probably already done this step. Congrats!
+---
 
-```bash
-# create a new project in the current directory
-npx sv create
+## 🚀 Features
 
-# create a new project in my-app
-npx sv create my-app
-```
+### ✅ Currently in Development
 
-## Developing
+We're working on the foundation of Sonora, building secure and scalable systems:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+- 🔐 **Authentication System**  
+  Secure login, signup, and session management
 
-```bash
-npm run dev
+- 🗨️ **Chatting Interface**  
+  Real-time 1-on-1 messaging with a modern UI
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+- 🧑‍🤝‍🧑 **Friend & Social System**  
+  Add, accept, and manage friend requests
 
-## Building
+- 👤 **Account System**  
+  Store user data, manage states, and prepare for deeper profile integration
 
-To create a production version of your app:
+---
 
-```bash
-npm run build
-```
+## 🧭 Roadmap: Future Plans
 
-You can preview the production build with `npm run preview`.
+Here’s what’s next for Sonora:
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- 📞 **Calling System**  
+  One-on-one voice calling with real-time audio and connection indicators
+
+- 👥 **Group Calls**  
+  Multi-user voice rooms with mute/raise-hand features
+
+- 🧭 **Beacons (Servers)**  
+  Community spaces, similar to Discord servers or groups
+
+- ⚙️ **User Settings**  
+  Update email, password, notifications, privacy settings, and more
+
+- 🎨 **Profile Customization**  
+  Avatars, statuses, bios, and custom themes for full expression
+
+---
+
+## 💡 Vision
+
+Sonora aims to be more than a chat app — it’s a **community-first communication hub**, built with flexibility and privacy in mind. Whether you're connecting with a friend or collaborating with a team, Sonora will be the bridge.
+
+---
+
+## 🛠️ Tech Stack
+
+> _(Note: Tech stack may evolve as the project grows)_
+
+- **Frontend:** Svelte / Tailwind CSS _(or your current stack)_
+- **Backend:** Laravel (PHP) / Node.js / WebSockets
+- **Database:** MySQL / PostgreSQL
+- **Authentication:** JWT / Laravel Sanctum
+- **Real-time:** Laravel Echo + WebSockets / Pusher
