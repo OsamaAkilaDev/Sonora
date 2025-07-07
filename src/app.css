@@ -65,6 +65,10 @@ html {
 	@apply bg-shade-700 hover:bg-shade-650;
 }
 
+.blue-link {
+	@apply text-cyanora-500 hover:text-cyanora-600 active:text-cyanora-700 hover:underline;
+}
+
 .grid-layout {
 	display: grid;
 	grid-template-rows: 55px 1fr;

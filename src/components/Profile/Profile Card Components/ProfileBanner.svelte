@@ -12,14 +12,14 @@
 	</div>
 
 	<img class="h-full w-full rounded-[inherit] object-cover object-bottom" src={bnr} alt="" />
-	<div class="bg-shade-800 absolute -bottom-[50px] left-6 h-25 w-25 rounded-full">
+	<div class="bg-shade-800 absolute -bottom-[50px] left-4 z-55 h-25 w-25 rounded-full">
 		<img class="h-full w-full rounded-full" src={pfp} alt="Profile" />
 	</div>
 </div>
 
 {#snippet actionButton(icon, name)}
 	<button
-		class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#00000080] p-[5px] text-white backdrop-blur-[1px]"
+		class="flex h-7 w-7 cursor-pointer items-center justify-center rounded-full bg-[#00000080] p-[5px] text-white"
 	>
 		{@html icon}
 	</button>
