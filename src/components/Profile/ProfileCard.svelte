@@ -11,7 +11,7 @@
 
 	let {
 		triggerCard,
-		name = 'Osama Akila',
+		name = 'Ous Akila',
 		username = 'Akila2003',
 		profileImage = pfp,
 		bannerImage = bnr,

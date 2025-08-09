@@ -81,7 +81,7 @@
 
 {#snippet navigationButton(button)}
 	<a
-		class="text-shade-600 hover:text-shade-500 w-[20px]"
+		class="text-shade-600 hover:text-shade-500 h-[20px] w-[20px]"
 		href={button.href}
 		aria-label={button.name}
 	>

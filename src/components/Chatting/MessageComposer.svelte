@@ -12,14 +12,17 @@
 		placeholder="Type your message here"
 		class="text-shade-500 text-4 grow resize-none bg-transparent py-[13px] outline-0"
 	></textarea>
-	<div class="flex h-full flex-row gap-3">
+	<div class="flex h-full flex-row items-center gap-3">
 		{@render navigationButton(socialIcons.emoji, 'Emoji menu')}
 		{@render navigationButton(socialIcons.send, 'Send message')}
 	</div>
 </div>
 
 {#snippet navigationButton(icon, name)}
-	<button class="text-shade-600 hover:text-shade-500 w-[20px] cursor-pointer" aria-label={name}>
+	<button
+		class="text-shade-600 hover:text-shade-500 h-[20px] w-[20px] cursor-pointer"
+		aria-label={name}
+	>
 		{@html icon}
 	</button>
 {/snippet}

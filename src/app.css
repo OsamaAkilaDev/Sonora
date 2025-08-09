@@ -11,6 +11,8 @@
 	--color-cyanora-700: #006f7f;
 	--color-cyanora-600: #008698;
 	--color-cyanora-500: #0096aa;
+
+	--color-rednor-700: #e7001e;
 }
 
 * {
@@ -88,7 +90,7 @@ html {
 .navigation-left-menu,
 .navigation-middle-menu,
 .navigation-right-menu {
-	@apply flex h-full flex-row gap-[14px];
+	@apply flex h-full flex-row items-center gap-[14px];
 }
 
 .masked-overflow {
