@@ -67,24 +67,24 @@ html {
 	@apply bg-shade-700 hover:bg-shade-650;
 }
 
+.cyan-btn {
+	@apply bg-cyanora-500 hover:bg-cyanora-600 active:bg-cyanora-700 cursor-pointer;
+}
+
 .blue-link {
 	@apply text-cyanora-500 hover:text-cyanora-600 active:text-cyanora-700 hover:underline;
 }
 
 .grid-layout {
-	display: grid;
-	grid-template-rows: 55px 1fr;
-	grid-template-columns: 270px 1fr;
-	padding: 8px;
-	gap: 8px;
+	@apply flex max-h-[calc(100vh-79px)] gap-2;
 }
 
 .bubble {
-	@apply bg-shade-800 border-shade-700 rounded-lg border-[2px];
+	@apply bg-shade-800 border-shade-700 rounded-lg border-[2px] transition-all;
 }
 
 .navigation-bar {
-	@apply col-span-2 flex flex-row items-center justify-between px-3 py-2;
+	@apply flex h-[55px] flex-row items-center justify-between px-3 py-2;
 }
 
 .navigation-left-menu,

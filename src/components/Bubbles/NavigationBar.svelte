@@ -1,6 +1,8 @@
 <script>
 	import { navigationBarIcons } from '$lib/icons';
+	import { sidebar } from '../../utils/Sidebar.svelte';
 	import BeaconMenu from '../Beacons/BeaconMenu.svelte';
+	import ActionButton from '../Buttons/ActionButton.svelte';
 	import LogoButton from '../Buttons/LogoButton.svelte';
 	import ProfileIconButton from '../Profile/ProfileIconButton.svelte';
 
@@ -15,6 +17,16 @@
 			name: 'Add',
 			href: '/'
 		},
+		friends: {
+			icon: navigationBarIcons.friends,
+			name: 'Friends',
+			href: '/'
+		},
+		notifications: {
+			icon: navigationBarIcons.notifications,
+			name: 'Notifications',
+			href: '/'
+		},
 		search: {
 			icon: navigationBarIcons.search,
 			name: 'Search',
@@ -22,7 +34,7 @@
 		},
 		options: {
 			icon: navigationBarIcons.options,
-			name: 'User Options',
+			name: 'Options',
 			href: '/options'
 		},
 		connection: {
@@ -55,9 +67,9 @@
 		<div class=" flex h-full items-center">
 			<div class="bg-shade-700 h-[85%] w-[1.5px] rounded-2xl"></div>
 		</div>
-		{@render navigationButton(buttons.search)}
-		{@render navigationButton(buttons.add)}
-		{@render navigationButton(buttons.options)}
+		{@render navigationButton(buttons.connection)}
+		{@render navigationButton(buttons.deafen)}
+		{@render navigationButton(buttons.mute)}
 	</div>
 
 	<!-- Middle Menu (Beacon Menu) -->
@@ -67,9 +79,10 @@
 
 	<!-- Right Menu (Callstate: Connectivity, Deafen, Mute) -->
 	<div class="navigation-right-menu">
-		{@render navigationButton(buttons.connection)}
-		{@render navigationButton(buttons.deafen)}
-		{@render navigationButton(buttons.mute)}
+		{@render actionButton(buttons.options)}
+		{@render actionButton(buttons.notifications)}
+		{@render actionButton(buttons.friends)}
+
 		<div class=" flex h-full items-center">
 			<div class="bg-shade-700 h-[85%] w-[1.5px] rounded-2xl"></div>
 		</div>
@@ -87,4 +100,16 @@
 	>
 		{@html button.icon}
 	</a>
+{/snippet}
+
+{#snippet actionButton(button)}
+	<button
+		class="hover:text-shade-500 {sidebar.type === button.name && sidebar.isActive
+			? 'text-shade-500'
+			: 'text-shade-600'} h-[20px] w-[20px] cursor-pointer"
+		onclick={() => sidebar.trigger(button.name)}
+		aria-label={button.name}
+	>
+		{@html button.icon}
+	</button>
 {/snippet}

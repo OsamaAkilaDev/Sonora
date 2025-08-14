@@ -7,8 +7,17 @@
 	import { goto } from '$app/navigation';
 	import { validateTokenThenGoto } from '../../utils/auth';
 	import { onMount } from 'svelte';
+	import toast, { Toaster } from 'svelte-hot-french-toast';
 
-	onMount(() => validateTokenThenGoto('/app', null));
+	onMount(() => {
+		validateTokenThenGoto('/app', null);
+		const urlParams = new URLSearchParams(window.location.search);
+
+		if (urlParams.get('signup') === 'done')
+			toast.success("You're all set! Log in to Sonora now.", {
+				style: 'background: #333; color: white'
+			});
+	});
 
 	let errors = $state({ email: '', password: '' });
 
@@ -71,4 +80,5 @@
 	</form>
 
 	<img class="fixed z-0 h-full w-full object-cover" src={bg} alt="" />
+	<Toaster />
 </div>

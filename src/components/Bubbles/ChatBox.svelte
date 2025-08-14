@@ -6,9 +6,14 @@
 	import ChatMessage from '../Chatting/ChatMessage.svelte';
 	import MessageComposer from '../Chatting/MessageComposer.svelte';
 	import ProfileIconButton from '../Profile/ProfileIconButton.svelte';
+	import { sidebar } from '../../utils/Sidebar.svelte';
 </script>
 
-<main class="bubble max-h-full overflow-hidden">
+<main
+	class={`bubble max-h-full overflow-hidden`}
+	class:col-span-1={sidebar.isActive}
+	class:col-span-2={!sidebar.isActive}
+>
 	<ChatHeader />
 	<div class="h-[calc(100%-103px)] py-2.5 pr-2 pl-1.5">
 		<div class=" flex max-h-full flex-col gap-4 overflow-x-hidden overflow-y-auto px-3">

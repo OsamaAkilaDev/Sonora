@@ -5,6 +5,7 @@
 	import { validateTokenThenGoto } from '../../utils/auth';
 	import { onMount } from 'svelte';
 	import { backendURL } from '../../utils/constants';
+	import { goto } from '$app/navigation';
 
 	onMount(() => validateTokenThenGoto('/app', null));
 
@@ -15,8 +16,6 @@
 		password: [],
 		passwordConfirmed: []
 	});
-
-	$inspect(errors);
 
 	async function onSubmit(e) {
 		e.preventDefault();
@@ -55,6 +54,7 @@
 		}
 		//
 		else if (data.status === 201) {
+			goto('/login?signup=done');
 		}
 	}
 </script>
@@ -84,7 +84,7 @@
 				<InputField
 					type="text"
 					name="Email"
-					placeholder="Type your Email"
+					placeholder="Type your email"
 					error={errors?.email[0]}
 				/>
 				<InputField

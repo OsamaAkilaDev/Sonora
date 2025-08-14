@@ -16,7 +16,7 @@
 	};
 </script>
 
-<nav class="flex h-[50px] w-full items-center justify-between p-2 px-4">
+<nav class="flex h-[50px] w-full items-center justify-between p-2 px-2">
 	<div class="flex items-center gap-3">
 		<div class="h-[30px] w-[30px]"><ProfileIconButton /></div>
 		<p class="text-shade-600 text-sm font-[420]">Osama</p>
@@ -25,11 +25,11 @@
 	<div class="flex h-5 gap-4">
 		{@render navigationButton(buttons.videoCall)}
 		{@render navigationButton(buttons.voiceCall)}
-		{@render navigationButton({
+		<!-- {@render navigationButton({
 			name: 'Search',
 			icon: utilitiesIcons.search,
 			href: '/'
-		})}
+		})} -->
 
 		{@render navigationButton({
 			name: 'Options',

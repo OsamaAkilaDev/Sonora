@@ -7,7 +7,7 @@
 	let inputRef = $state(null);
 
 	if (name == 'Email') icon = socialIcons.mail;
-	else if (name == 'Password') icon = socialIcons.password;
+	else if (name == 'Password' || name == 'Confirm Password') icon = socialIcons.password;
 	else if (name == 'Display Name') icon = socialIcons.user;
 	else if (name == 'Username') icon = socialIcons.username;
 

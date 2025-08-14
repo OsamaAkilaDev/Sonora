@@ -3,7 +3,6 @@ import { backendURL } from './constants';
 import { isSuccess } from './status';
 
 export async function validateTokenThenGoto(route, otherRoute) {
-	console.log('dwdwdwdw');
 	// const token = await cookieStore.get('token');
 	let res = await fetch(backendURL + '/auth/', {
 		method: 'POST',
