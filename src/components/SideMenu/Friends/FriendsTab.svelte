@@ -1,32 +1,15 @@
 <script>
-	import { backendURL } from '../../../utils/constants';
+	import { friends } from '$lib/globals/SocialData';
 	import ProfileIcon from '../../Profile/ProfileIcon.svelte';
-
-	let friends = $state([]);
-
-	async function fetchFriendsList() {
-		let res = await fetch(backendURL + '/relation/friends', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include'
-		});
-
-		let data = await res.json();
-
-		friends = data.content;
-		console.log(data.content);
-	}
-
-	fetchFriendsList();
 </script>
 
-{#if friends.length >= 1}
-	<p class="text-shade-600 mt-0.5 mb-1 ml-1.5 text-sm">Friends ({friends.length})</p>
+{#if $friends.length >= 1}
+	<p class="text-shade-600 mt-0.5 mb-1 ml-1.5 text-sm">Friends ({$friends.length})</p>
 {/if}
 
 <div class="flex h-[calc(100%-77.5px)] max-h-[calc(100%-77.5px)] flex-col gap-2 overflow-y-auto">
-	{#if friends.length >= 1}
-		{#each friends as friend}
+	{#if $friends.length >= 1}
+		{#each $friends as friend}
 			{@render Contact(friend.displayName, friend.username)}
 		{/each}
 	{:else}

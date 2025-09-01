@@ -76,7 +76,7 @@ html {
 }
 
 .grid-layout {
-	@apply flex max-h-[calc(100vh-79px)] gap-2;
+	@apply grid h-[calc(100vh-79px)] grid-cols-[270px_1fr_270px] gap-2;
 }
 
 .bubble {

@@ -1,5 +1,7 @@
 <script>
+	import { updateData } from '$lib/globals/SocialData';
 	import { socialIcons } from '$lib/icons';
+	import { backendURL } from '../../../utils/constants';
 	import TabBar from '../../Buttons/TabBar.svelte';
 	import BlockedFriendsTab from './BlockedFriendsTab.svelte';
 	import FriendsTab from './FriendsTab.svelte';
@@ -13,6 +15,31 @@
 
 	let selectedCategory = $state(0);
 	let DisplayedTab = $derived(categories[selectedCategory].element);
+
+	async function fetchSocialData() {
+		let res = await fetch(backendURL + '/relation/friends', {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+			credentials: 'include'
+		});
+
+		let data = await res.json();
+
+		let res2 = await fetch(backendURL + '/relation/friend-requests', {
+			method: 'GET',
+			headers: { 'Content-Type': 'application/json' },
+			credentials: 'include'
+		});
+
+		let data2 = await res2.json();
+
+		updateData({
+			friends: data.content,
+			receivedRequests: data2.content.receivedFriendships,
+			sentRequests: data2.content.requestedFriendships
+		});
+	}
+	fetchSocialData();
 </script>
 
 <aside class="h-full w-full p-2">

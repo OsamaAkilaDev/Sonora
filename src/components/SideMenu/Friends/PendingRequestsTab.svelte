@@ -8,22 +8,7 @@
 	import { iconToast, errorToast, successToast } from '../../../utils/toasts';
 	import { error } from '@sveltejs/kit';
 	import RequestCard from './RequestCard.svelte';
-
-	let receivedRequests = $state([]);
-	let sentRequests = $state([]);
-
-	async function fetchFriendRequests() {
-		let res = await fetch(backendURL + '/relation/friend-requests', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include'
-		});
-
-		let data = await res.json();
-		// console.log(data);
-		receivedRequests = data.content.receivedFriendships;
-		sentRequests = data.content.requestedFriendships;
-	}
+	import { receivedRequests, sentRequests } from '$lib/globals/SocialData';
 
 	async function onSubmit(e) {
 		e.preventDefault();
@@ -51,8 +36,6 @@
 		if (isSuccess(data.status)) successToast('Friend Request Sent!');
 		else errorToast(data.content);
 	}
-
-	fetchFriendRequests();
 </script>
 
 <form onsubmit={(e) => onSubmit(e)} class="flex h-8 gap-2">
@@ -75,8 +58,8 @@
 	class="mt-2.5 flex h-[calc(100%-95.5px)] max-h-[calc(100%-95.5px)] flex-col gap-2 overflow-y-auto"
 >
 	<div class="mt-0.5 flex flex-col gap-3">
-		<ExpandableList name="Received" count={receivedRequests.length}>
-			{#each receivedRequests as request}
+		<ExpandableList name="Received" count={$receivedRequests.length}>
+			{#each $receivedRequests as request}
 				<RequestCard
 					displayName={request.requester.displayName}
 					username={request.requester.username}
@@ -86,8 +69,8 @@
 			{/each}
 		</ExpandableList>
 
-		<ExpandableList name="Sent" count={sentRequests.length}>
-			{#each sentRequests as request}
+		<ExpandableList name="Sent" count={$sentRequests.length}>
+			{#each $sentRequests as request}
 				<RequestCard
 					displayName={request.receiver.displayName}
 					username={request.receiver.username}

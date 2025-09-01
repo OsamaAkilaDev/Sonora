@@ -18,4 +18,6 @@ export async function validateTokenThenGoto(route, otherRoute) {
 	else {
 		if (otherRoute) goto(otherRoute);
 	}
+
+	return data;
 }

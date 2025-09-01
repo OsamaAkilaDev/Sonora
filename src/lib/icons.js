@@ -256,6 +256,33 @@ export let socialIcons = {
         <svg style="display: block; width="100%" height="100%" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path d="M4 8H20M4 16H20M8 3V21M16 3V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
+    `,
+	chat: `
+<svg width="100%" height="100%" viewBox="-5 -5 37 34" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Soft shadow filter -->
+    <filter id="shadow" x="-50%" y="-50%" width="200%" height="200%" filterUnits="userSpaceOnUse">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="1.5" result="blur"/>
+      <feOffset in="blur" dx="0" dy="1" result="offsetBlur"/>
+      <feFlood flood-color="black" flood-opacity="0.3" result="shadowColor"/>
+      <feComposite in="shadowColor" in2="offsetBlur" operator="in" result="shadow"/>
+      <feMerge>
+        <feMergeNode in="shadow"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Group both paths and apply the shadow -->
+  <g filter="url(#shadow)">
+    <path d="M1 5.68047C1 4.04215 1 3.22299 1.34515 2.59724C1.64874 2.04681 2.13318 1.59929 2.72903 1.31884C3.40641 1 4.29316 1 6.06667 1H14.9333C16.7069 1 17.5935 1 18.271 1.31884C18.8669 1.59929 19.3513 2.04681 19.6548 2.59724C20 3.22299 20 4.04215 20 5.68047V10.946C20 12.5843 20 13.4034 19.6548 14.0292C19.3513 14.5797 18.8669 15.0272 18.271 15.3076C17.5935 15.6265 16.7069 15.6265 14.9333 15.6265H12.2772C11.6186 15.6265 11.2892 15.6265 10.9742 15.6862C10.6946 15.7392 10.4242 15.8268 10.1701 15.9468C9.88377 16.0819 9.62653 16.272 9.11216 16.6521L6.59419 18.5129C6.15498 18.8375 5.93539 18.9998 5.75057 19C5.58984 19.0002 5.43779 18.9326 5.33752 18.8166C5.22222 18.6832 5.22222 18.4234 5.22222 17.9038V15.6265C4.24059 15.6265 3.74976 15.6265 3.34707 15.5268C2.25428 15.2563 1.40071 14.4677 1.1079 13.4583C1 13.0863 1 12.6329 1 11.7261V5.68047Z"
+          fill="#3F3F3F" stroke="#3F3F3F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M26 12.6404C26 11.3661 26 10.729 25.7275 10.2423C25.4878 9.81418 25.1054 9.46612 24.635 9.24798C24.1002 9 23.4001 9 22 9H15C13.5998 9 12.8998 9 12.365 9.24798C11.8946 9.46612 11.5122 9.81418 11.2725 10.2423C11 10.729 11 11.3661 11 12.6404V16.7358C11 18.01 11 18.6471 11.2725 19.1339C11.5122 19.562 11.8946 19.91 12.365 20.1281C12.8998 20.3761 13.5998 20.3761 15 20.3761H17.0969C17.6169 20.3761 17.8769 20.3761 18.1257 20.4226C18.3463 20.4638 18.5598 20.532 18.7604 20.6253C18.9865 20.7304 19.1896 20.8782 19.5957 21.1738L21.5835 22.6212C21.9303 22.8736 22.1036 22.9998 22.2496 23C22.3764 23.0002 22.4965 22.9476 22.5756 22.8573C22.6667 22.7536 22.6667 22.5516 22.6667 22.1474V20.3761C23.4416 20.3761 23.8291 20.3761 24.1471 20.2986C25.0098 20.0882 25.6836 19.4749 25.9148 18.6898C26 18.4005 26 18.0478 26 17.3425V12.6404Z"
+          fill="#2C2C2C" stroke="#2C2C2C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>
+
+
     `
 };
 

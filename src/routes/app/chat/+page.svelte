@@ -1,10 +1,8 @@
 <script>
 	import { socialIcons } from '$lib/icons';
-	import ChatBox from '../../components/Bubbles/ChatBox.svelte';
-	import { sidebar } from '../../utils/Sidebar.svelte';
+	import { sidebar } from '../../../utils/Sidebar.svelte';
 </script>
 
-<!-- <ChatBox /> -->
 <main
 	class="bubble flex flex-col items-center justify-center overflow-hidden"
 	class:col-span-1={sidebar.isActive}

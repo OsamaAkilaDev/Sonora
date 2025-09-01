@@ -4,7 +4,6 @@
 	let { children, name, count } = $props();
 
 	let isExpanded = $state(true);
-	console.log(typeof children);
 </script>
 
 <div class="flex flex-col gap-0.5">
