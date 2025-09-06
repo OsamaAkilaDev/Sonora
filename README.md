@@ -6,23 +6,33 @@ Sonora is built to connect people through real-time conversations, social featur
 
 ---
 
-## 🚀 Features
+## ✅ Done
 
-### ✅ Currently in Development
-
-We're working on the foundation of Sonora, building secure and scalable systems:
+These core systems are already implemented and functional:
 
 - 🔐 **Authentication System**  
-  Secure login, signup, and session management
+  Secure login, signup, and session management using JWT
 
-- 🗨️ **Chatting Interface**  
-  Real-time 1-on-1 messaging with a modern UI
+- 👤 **Account System**  
+  Database and CRUD operations for accounts
 
 - 🧑‍🤝‍🧑 **Friend & Social System**  
   Add, accept, and manage friend requests
 
-- 👤 **Account System**  
-  Store user data, manage states, and prepare for deeper profile integration
+- 🎨 **Clean Interactive UI**  
+  Modern, responsive design with smooth interactions
+
+- 🔌 **WebSocket Integration**  
+  Real-time communication layer, presence, and live updates 
+
+---
+
+## 🚀 Currently in Development
+
+We’re actively building and refining these features:
+
+- 🗨️ **Chatting Interface**  
+  Real-time 1-on-1 and group chats
 
 ---
 
@@ -31,19 +41,19 @@ We're working on the foundation of Sonora, building secure and scalable systems:
 Here’s what’s next for Sonora:
 
 - 📞 **Calling System**  
-  One-on-one voice calling with real-time audio and connection indicators
+  One-on-one voice calling with real-time audio and connection indicators  
 
 - 👥 **Group Calls**  
-  Multi-user voice rooms with mute/raise-hand features
+  Multi-user voice rooms with mute/raise-hand features  
 
 - 🧭 **Beacons (Servers)**  
-  Community spaces and servers
+  Community spaces and servers  
 
 - ⚙️ **User Settings**  
-  Update email, password, notifications, privacy settings, and more
+  Update email, password, notifications, privacy settings, and more  
 
 - 🎨 **Profile Customization**  
-  Avatars, statuses, bios, and custom themes for full expression
+  Avatars, statuses, bios, and custom themes for full expression  
 
 ---
 
