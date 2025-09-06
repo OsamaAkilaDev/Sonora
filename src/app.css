@@ -2,6 +2,7 @@
 @theme {
 	--color-shade-900: #020202;
 	--color-shade-800: #141414;
+	--color-shade-750: #202020;
 	--color-shade-700: #2c2c2c;
 	--color-shade-650: #3a3a3a;
 	--color-shade-640: #3f3f3f;
@@ -80,7 +81,7 @@ html {
 }
 
 .bubble {
-	@apply bg-shade-800 border-shade-700 rounded-lg border-[2px] transition-all;
+	@apply bg-shade-800 border-shade-700 overflow-hidden rounded-lg border-[2px] transition-all;
 }
 
 .navigation-bar {
@@ -199,4 +200,22 @@ html {
 	border-top: 7px solid transparent;
 	border-bottom: 7px solid transparent;
 	border-right: 10px solid #3a3a3a; /* this is the visible side */
+}
+
+.loader {
+	border: 4px solid #2c2c2c;
+	border-top: 4px solid #797979;
+	border-radius: 50%;
+	height: 28px;
+	width: 28px;
+	animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+	0% {
+		transform: rotate(0deg);
+	}
+	100% {
+		transform: rotate(360deg);
+	}
 }

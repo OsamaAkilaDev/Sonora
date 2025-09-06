@@ -2,6 +2,8 @@
 	import { navigationBarIcons, socialIcons, utilitiesIcons } from '$lib/icons';
 	import ProfileIconButton from '../Profile/ProfileIconButton.svelte';
 
+	let { info } = $props();
+
 	let buttons = {
 		voiceCall: {
 			icon: socialIcons.voiceCall,
@@ -19,7 +21,7 @@
 <nav class="flex h-[50px] w-full items-center justify-between p-2 px-2">
 	<div class="flex items-center gap-3">
 		<div class="h-[30px] w-[30px]"><ProfileIconButton /></div>
-		<p class="text-shade-600 text-sm font-[420]">Osama</p>
+		<p class="text-shade-600 text-sm font-[420]">{info.displayName}</p>
 	</div>
 
 	<div class="flex h-5 gap-4">

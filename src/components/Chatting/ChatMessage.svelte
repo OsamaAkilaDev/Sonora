@@ -1,21 +1,21 @@
 <script>
-	import pfp from '$lib/images/pfp.png';
+	import pfp from '$lib/images/default_pfp.png';
+	import { dateOf, timeOf } from '../../utils/time';
 
 	let {
-		img = pfp,
+		img,
 		username = 'Osama Akila',
 		msg = 'Hello everybody',
-		date = '19/7/2023',
-		time = '7:35 PM'
+		isoString = '2025-09-06T06:37:31.638Z'
 	} = $props();
 </script>
 
-<div class="flex items-start gap-4.5 text-white">
-	<img class="h-10 w-10 rounded-full" src={img} alt={username} />
+<div class="flex items-start gap-4 text-white">
+	<img class="h-10 w-10 rounded-full" src={img ? img : pfp} alt={username} />
 	<div class="flex flex-col items-start">
-		<div class="flex items-end gap-3">
-			<p class="selectable">{username}</p>
-			<p class="text-shade-600 selectable text-[13px]">{date} {time}</p>
+		<div class="flex items-baseline gap-3">
+			<p class="selectable text-[15px]">{username}</p>
+			<p class="text-shade-600 selectable text-[11px]">{dateOf(isoString)} {timeOf(isoString)}</p>
 		</div>
 		<p class="selectable font-[300]" style="white-space: pre-line">{msg}</p>
 	</div>

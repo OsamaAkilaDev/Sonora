@@ -7,7 +7,7 @@
 		name = 'username placeholder',
 		borderWidth = 3,
 		borderColor = 'border-shade-800',
-		statusIndicator = true
+		statusIndicator = false
 	} = $props();
 
 	let profileCardShown = $state(false);

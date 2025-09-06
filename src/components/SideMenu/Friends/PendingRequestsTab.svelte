@@ -10,6 +10,8 @@
 	import RequestCard from './RequestCard.svelte';
 	import { receivedRequests, sentRequests } from '$lib/globals/SocialData';
 
+	let { loadData } = $props();
+
 	async function onSubmit(e) {
 		e.preventDefault();
 		// console.log(e);

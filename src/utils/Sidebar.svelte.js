@@ -1,6 +1,6 @@
 function Sidebar() {
-	let isActive = $state(false);
-	let type = $state('');
+	let isActive = $state(true);
+	let type = $state('Friends');
 
 	return {
 		get isActive() {

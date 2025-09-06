@@ -7,8 +7,6 @@
 	let profileCardShown = $state(false);
 
 	function triggerCard() {
-		console.log('WDdw');
-
 		profileCardShown = !profileCardShown;
 	}
 </script>

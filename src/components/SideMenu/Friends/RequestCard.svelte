@@ -62,7 +62,7 @@
 	}
 </script>
 
-<div class="item flex h-13 w-full items-center gap-4 rounded-md p-2 transition-all duration-300">
+<div class="item flex h-13 w-full items-center gap-3.5 rounded-md p-2 transition-all duration-300">
 	<div class="h-[35px] w-[35px]">
 		<ProfileIcon statusIndicator={false} />
 	</div>
