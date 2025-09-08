@@ -1,4 +1,6 @@
+import { BACKEND_URI } from './secrets';
+
 const baseURL = 'http://localhost:3000';
 
-export const backendURL = baseURL + '/api';
-export const socketURL = baseURL;
+export const backendURL = BACKEND_URI + '/api';
+export const socketURL = BACKEND_URI;
