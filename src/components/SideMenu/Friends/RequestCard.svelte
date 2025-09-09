@@ -1,6 +1,7 @@
 <script>
 	import { utilitiesIcons } from '$lib/icons';
 	import { backendURL } from '../../../utils/constants';
+	import { deleteRequest, putRequest } from '../../../utils/fetchers';
 	import { isSuccess } from '../../../utils/status';
 	import { errorToast, iconToast, successToast } from '../../../utils/toasts';
 	import ProfileIcon from '../../Profile/ProfileIcon.svelte';
@@ -9,13 +10,8 @@
 
 	async function cancelFriendRequest(id) {
 		// console.log('cancel');
-		let res = await fetch(backendURL + '/relation/cancel-friendship-request', {
-			method: 'DELETE',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				relationId: id
-			})
+		let res = await deleteRequest('/relation/cancel-friendship-request', {
+			relationId: id
 		});
 
 		let data = await res.json();
@@ -27,13 +23,8 @@
 
 	async function acceptFriendRequest(id) {
 		// console.log('cancel');
-		let res = await fetch(backendURL + '/relation/accept-friendship-request', {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				relationId: id
-			})
+		let res = await putRequest('/relation/accept-friendship-request', {
+			relationId: id
 		});
 
 		let data = await res.json();
@@ -45,13 +36,9 @@
 
 	async function rejectFriendRequest(id) {
 		// console.log('cancel');
-		let res = await fetch(backendURL + '/relation/reject-friendship-request', {
-			method: 'PUT',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				relationId: id
-			})
+
+		let res = await putRequest('/relation/reject-friendship-request', {
+			relationId: id
 		});
 
 		let data = await res.json();

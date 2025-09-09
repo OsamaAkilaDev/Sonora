@@ -1,6 +1,7 @@
 <script>
 	import { socialIcons } from '$lib/icons';
 	import { backendURL } from '../../utils/constants';
+	import { postRequest } from '../../utils/fetchers';
 	import { isSuccess } from '../../utils/status';
 
 	let { chatId } = $props();
@@ -14,14 +15,9 @@
 
 		// console.log(msgText);
 
-		let res = await fetch(backendURL + '/chat/message', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				chatId: chatId,
-				messageContent: msgText
-			})
+		let res = await postRequest('/chat/message', {
+			chatId: chatId,
+			messageContent: msgText
 		});
 
 		let data = await res.json();

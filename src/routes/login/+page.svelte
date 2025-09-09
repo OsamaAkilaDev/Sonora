@@ -8,6 +8,7 @@
 	import { validateTokenThenGoto } from '../../utils/auth';
 	import { onMount } from 'svelte';
 	import toast, { Toaster } from 'svelte-hot-french-toast';
+	import { postRequest } from '../../utils/fetchers';
 
 	onMount(() => {
 		validateTokenThenGoto('/app', null);
@@ -28,16 +29,12 @@
 		let email = formData.get('Email');
 		let password = formData.get('Password');
 
-		let res = await fetch(backendURL + '/auth/login', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({ email: email, password: password })
-		});
+		let res = await postRequest('/auth/login', { email: email, password: password });
 
 		const data = await res.json();
 
 		if (isSuccess(data.status)) {
-			await cookieStore.set('token', data.content.token);
+			// await cookieStore.set('token', data.content.token);
 			goto('/app');
 		}
 		//

@@ -3,20 +3,14 @@
 	import { friends, selectedChat } from '$lib/globals/SocialData';
 	import { utilitiesIcons } from '$lib/icons';
 	import { backendURL } from '../../../utils/constants';
+	import { postRequest } from '../../../utils/fetchers';
 	import { isSuccess } from '../../../utils/status';
 	import ProfileIcon from '../../Profile/ProfileIcon.svelte';
 
 	let { loadData } = $props();
 
 	async function navigateToChat(friend) {
-		let res = await fetch(backendURL + '/chat/', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				targetUser: { id: friend.id }
-			})
-		});
+		let res = await postRequest('/chat/', { targetUser: { id: friend.id } });
 
 		let data = await res.json();
 		if (isSuccess(data.status)) {

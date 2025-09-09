@@ -6,6 +6,7 @@
 	import { onMount } from 'svelte';
 	import { backendURL } from '../../utils/constants';
 	import { goto } from '$app/navigation';
+	import { postRequest } from '../../utils/fetchers';
 
 	onMount(() => validateTokenThenGoto('/app', null));
 
@@ -27,16 +28,12 @@
 		let password = formData.get('Password');
 		let passwordConfirmed = formData.get('Confirm Password');
 
-		let res = await fetch(backendURL + '/auth/signup', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			body: JSON.stringify({
-				displayName: name,
-				username: username,
-				email: email,
-				password: password,
-				passwordConfirmed: passwordConfirmed
-			})
+		let res = await postRequest('/auth/signup', {
+			displayName: name,
+			username: username,
+			email: email,
+			password: password,
+			passwordConfirmed: passwordConfirmed
 		});
 
 		const data = await res.json();

@@ -9,6 +9,7 @@
 	import { error } from '@sveltejs/kit';
 	import RequestCard from './RequestCard.svelte';
 	import { receivedRequests, sentRequests } from '$lib/globals/SocialData';
+	import { postRequest } from '../../../utils/fetchers';
 
 	let { loadData } = $props();
 
@@ -22,13 +23,8 @@
 
 		if (!username) return;
 
-		let res = await fetch(backendURL + '/relation/send-friendship-request', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				username: username
-			})
+		let res = await postRequest('/relation/send-friendship-request', {
+			username: username
 		});
 
 		let data = await res.json();

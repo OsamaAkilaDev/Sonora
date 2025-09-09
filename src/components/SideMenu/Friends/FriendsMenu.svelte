@@ -7,6 +7,7 @@
 	import BlockedFriendsTab from './BlockedFriendsTab.svelte';
 	import FriendsTab from './FriendsTab.svelte';
 	import PendingRequestsTab from './PendingRequestsTab.svelte';
+	import { getRequest } from '../../../utils/fetchers';
 
 	let categories = [
 		{ name: 'Friends', icon: socialIcons.friends, element: FriendsTab },
@@ -20,19 +21,11 @@
 	let loadData = $state(false);
 
 	async function fetchSocialData() {
-		let res = await fetch(backendURL + '/relation/friends', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include'
-		});
+		let res = await getRequest('/relation/friends');
 
 		let data = await res.json();
 
-		let res2 = await fetch(backendURL + '/relation/friend-requests', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include'
-		});
+		let res2 = await getRequest('/relation/friend-requests');
 
 		let data2 = await res2.json();
 

@@ -5,15 +5,12 @@
 	import ProfileIcon from '../Profile/ProfileIcon.svelte';
 	import { isSuccess } from '../../utils/status';
 	import { goto } from '$app/navigation';
+	import { getRequest, postRequest } from '../../utils/fetchers';
 
 	let loading = $state(true);
 
 	async function fetchSocialData() {
-		let res = await fetch(backendURL + '/chat/list', {
-			method: 'GET',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include'
-		});
+		let res = await getRequest('/chat/list');
 
 		let data = await res.json();
 
@@ -26,14 +23,7 @@
 	onMount(fetchSocialData);
 
 	async function navigateToChat(id) {
-		let res = await fetch(backendURL + '/chat/', {
-			method: 'POST',
-			headers: { 'Content-Type': 'application/json' },
-			credentials: 'include',
-			body: JSON.stringify({
-				targetUser: { id: id }
-			})
-		});
+		let res = await postRequest('/chat/', { targetUser: { id: id } });
 
 		let data = await res.json();
 		if (isSuccess(data.status)) {
