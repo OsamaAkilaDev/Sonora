@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# 🎧 Sonora
 
-## Getting Started
+Welcome to **Sonora**, a modern, in-development web application for **seamless chatting and calling**, created as a **one-man project by Osama Akila**.
 
-First, run the development server:
+Sonora is designed to connect people through real-time conversations, social features, and high-quality voice communication. Think of it as a future-ready communication platform blending **simplicity**, **customization**, and **community**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✅ Already Implemented
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+These core systems are fully functional:
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+- 🔐 **Authentication & Account System**  
+  Secure login, signup, session management, and full CRUD operations for user accounts
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- 🧑‍🤝‍🧑 **Friends & 1-on-1 Messaging**  
+  Add, accept, and manage friends; real-time 1-on-1 chat with **full texting experience, emojis, and media support**
 
-## Learn More
+- 🎨 **Clean Interactive UI**  
+  Modern, responsive design with smooth interactions
 
-To learn more about Next.js, take a look at the following resources:
+- 🔌 **WebSocket Integration**  
+  Real-time communication layer with presence, typing indicators, and live updates
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🚀 Currently in Development
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+We are actively working on these features:
 
-## Deploy on Vercel
+- 📞 **1-on-1 Calling**  
+  High-quality voice calls between friends with real-time connection indicators
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧭 Roadmap: Planned Features
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Here is what is coming next for Sonora:
+
+- 👥 **Group Chats & Calls**  
+  Multi-user chat rooms and voice rooms with moderation, mute, and raise-hand features
+
+- 🏰 **Beacons (Servers)**  
+  Community spaces to organize chats and calls
+
+- ⚙️ **User Settings & Customization**  
+  Update email, password, notifications, privacy settings, avatars, statuses, bios, and themes
+
+## 💡 Vision
+
+Sonora is more than just a chat app. It is a **community-first communication hub**. Whether connecting with a friend one-on-one or collaborating in a group, Sonora aims to provide **flexible, private, and engaging interactions** for all users.
+
+As a **one-man project**, Sonora reflects the vision, effort, and craftsmanship of **Osama Akila**.
