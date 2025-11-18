@@ -1,0 +1,22 @@
+"use client";
+import React from "react";
+import { LogOutIcon } from "./Icons";
+import { postRequest } from "../utils/fetchers";
+import { useRouter } from "next/navigation";
+
+function LogOutButton() {
+  const router = useRouter();
+  return (
+    <button
+      className="hover:text-shade-500 text-shade-600 h-5 w-5 hover:cursor-pointer transform-[scale(-1,1)]"
+      onClick={async () => {
+        await postRequest("/auth/logout");
+        router.refresh();
+      }}
+    >
+      <LogOutIcon />
+    </button>
+  );
+}
+
+export default LogOutButton;

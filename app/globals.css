@@ -1,26 +1,295 @@
 @import "tailwindcss";
+@theme {
+  --color-shade-900: #020202;
+  --color-shade-800: #141414;
+  --color-shade-750: #202020;
+  --color-shade-700: #2c2c2c;
+  --color-shade-650: #3a3a3a;
+  --color-shade-640: #3f3f3f;
+  --color-shade-600: #8d8e8e;
+  --color-shade-500: #cbcbcb;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --color-cyanora-700: #006f7f;
+  --color-cyanora-600: #008698;
+  --color-cyanora-500: #0096aa;
+  --color-cyanora-disabled: #33686f;
+
+  --color-rednor-700: #e7001e;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  font-family: "Rubik";
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+.selectable {
+  -webkit-touch-callout: text;
+  -webkit-user-select: text;
+  -khtml-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+img {
+  pointer-events: none;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: 7px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  @apply bg-shade-700 rounded-2xl;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #525252;
+  @apply rounded-2xl;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #797979;
+}
+
+.flex-all-center {
+  @apply flex items-center justify-center;
+}
+
+.btn {
+  @apply bg-shade-700 hover:bg-shade-650;
+}
+
+.cyan-btn {
+  @apply bg-cyanora-500 hover:bg-cyanora-600 active:bg-cyanora-700 cursor-pointer;
+}
+
+.blue-link {
+  @apply text-cyanora-500 hover:text-cyanora-600 active:text-cyanora-700 hover:underline;
+}
+
+.grid-layout {
+  @apply grid h-[calc(100vh-79px)] grid-cols-[270px_1fr_270px] gap-2;
+}
+
+.bubble {
+  @apply bg-shade-800 border-shade-700 overflow-hidden rounded-lg border-[2px] transition-all;
+}
+
+.navigation-bar {
+  @apply flex h-[55px] flex-row items-center justify-between px-3 py-2;
+}
+
+.navigation-left-menu,
+.navigation-middle-menu,
+.navigation-right-menu {
+  @apply flex h-full flex-row items-center gap-3.5;
+}
+
+.masked-overflow {
+  /* scroll bar width, for use in mask calculations */
+  --scrollbar-width: 6.5px;
+
+  /* mask fade distance, for use in mask calculations */
+  --mask-height: 10px;
+
+  /* Need to make sure container has bottom space,
+  otherwise content at the bottom is always faded out */
+  padding-bottom: var(--mask-height);
+
+  /* The CSS mask */
+
+  /* The content mask is a linear gradient from top to bottom */
+  --mask-image-content: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--mask-height),
+    black calc(100% - var(--mask-height)),
+    transparent
+  );
+
+  /* Here we scale the content gradient to the width of the container 
+  minus the scrollbar width. The height is the full container height */
+  --mask-size-content: calc(100% - var(--scrollbar-width)) 100%;
+
+  /* The scrollbar mask is a black pixel */
+  --mask-image-scrollbar: linear-gradient(black, black);
+
+  /* The width of our black pixel is the width of the scrollbar.
+  The height is the full container height */
+  --mask-size-scrollbar: var(--scrollbar-width) 100%;
+
+  /* Apply the mask image and mask size variables */
+  mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+  mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+
+  /* Position the content gradient in the top left, and the 
+  scroll gradient in the top right */
+  mask-position: 0 0, 100% 0;
+
+  /* We don't repeat our mask images */
+  mask-repeat: no-repeat, no-repeat;
+}
+
+.masked-chat-overflow {
+  /* scroll bar width, for use in mask calculations */
+  --scrollbar-width: 7px;
+
+  /* mask fade distance, for use in mask calculations */
+  --mask-height: 10px;
+
+  /* Need to make sure container has bottom space,
+  otherwise content at the bottom is always faded out */
+  padding-bottom: var(--mask-height);
+
+  /* The CSS mask */
+
+  /* The content mask is a linear gradient from top to bottom */
+  --mask-image-content: linear-gradient(
+    to bottom,
+    transparent,
+    black var(--mask-height),
+    black calc(100% - var(--mask-height)),
+    transparent
+  );
+
+  /* Here we scale the content gradient to the width of the container 
+  minus the scrollbar width. The height is the full container height */
+  --mask-size-content: calc(100% - var(--scrollbar-width)) 100%;
+
+  /* The scrollbar mask is a black pixel */
+  --mask-image-scrollbar: linear-gradient(black, black);
+
+  /* The width of our black pixel is the width of the scrollbar.
+  The height is the full container height */
+  --mask-size-scrollbar: var(--scrollbar-width) 100%;
+
+  /* Apply the mask image and mask size variables */
+  mask-image: var(--mask-image-content), var(--mask-image-scrollbar);
+  mask-size: var(--mask-size-content), var(--mask-size-scrollbar);
+
+  /* Position the content gradient in the top left, and the 
+  scroll gradient in the top right */
+  mask-position: 0 0, 100% 0;
+
+  /* We don't repeat our mask images */
+  mask-repeat: no-repeat, no-repeat;
+}
+
+.custom-input:-webkit-autofill {
+  transition: background-color 9999s ease-in-out 0s;
+  -webkit-text-fill-color: white !important;
+  box-shadow: 0 0 0px 1000px #2c2c2c inset !important; /* match your input bg */
+}
+
+.triangle-left {
+  width: 0;
+  height: 0;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-right: 10px solid #3a3a3a; /* this is the visible side */
+}
+
+.loader {
+  border: 4px solid #2c2c2c;
+  border-top: 4px solid #797979;
+  border-radius: 50%;
+  height: 28px;
+  width: 28px;
+  animation: spin 2s linear infinite;
+}
+
+.loading-spinner {
+  width: 2rem; /* default size */
+  height: 2rem;
+  display: block;
+}
+
+.spinner-circle {
+  transform-origin: 50% 50%;
+  animation: spin 1s linear infinite;
+  animation-delay: -1s; /* starts as if it's already been spinning */
+  color: inherit;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.auth-form {
+  @apply border-shade-700 z-10 flex sm:w-100 w-full flex-col sm:rounded-xl sm:border-2 p-6 backdrop-blur-lg max-sm:h-full overflow-y-auto;
+}
+
+.chat-srollbar::-webkit-scrollbar-track {
+  @apply my-2;
+}
+
+.whiten {
+  filter: brightness(0) invert(1);
+}
+
+/* Targets the generated sticky group headers */
+/* [data-testid="emoji-picker-list-header"] {
+  @apply bg-shade-700;
+}
+
+.emoji-picker {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji",
+    sans-serif;
+} */
+
+.EmojiPickerReact,
+.EmojiPickerReact * {
+  font-family: "Rubik" !important;
+  --epr-header-padding: 10px;
+  --epr-search-input-border-radius: 4px;
+  --epr-horizontal-padding: 15px;
+}
+
+/* Search input font */
+.EmojiPickerReact input.epr-search {
+  font-family: inherit !important;
+}
+
+/* Category labels font */
+.EmojiPickerReact .epr-emoji-category-label {
+  font-family: inherit !important;
+  background-color: #141414 !important;
+}
+/* If skin tones are in preview area */
+.emoji-menu-wrapper .epr-preview {
+  font-size: 0.9em !important;
+}
+
+.emoji-menu-wrapper .epr-preview .epr-skin-tones {
+  transform: scale(0.85) !important;
+}
+
+aside.EmojiPickerReact .epr-skin-tones {
+  width: 34.6px !important;
+  min-height: 34.6px !important;
+  margin-bottom: -4px;
+}
+
+aside.EmojiPickerReact .epr-emoji-native {
+  font-size: 30px !important;
+  height: 36px !important;
+  width: 36px !important;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
 }
