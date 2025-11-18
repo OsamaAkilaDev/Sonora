@@ -1,47 +1,59 @@
 # 🎧 Sonora
 
-Welcome to **Sonora**, a modern, in-development web application for **seamless chatting and calling**, created as a **one-man project by Osama Akila**.
+**Sonora** is a modern, in-development web application for **real-time chatting and voice calling**, created as a **one-man project by Osama Akila**.
 
-Sonora is designed to connect people through real-time conversations, social features, and high-quality voice communication. Think of it as a future-ready communication platform blending **simplicity**, **customization**, and **community**.
+It is built with **Next.js**, **Node.js**, **Express**, **Prisma ORM**, and **WebSockets**, providing a scalable and responsive platform for 1-on-1 messaging, voice communication, and social interactions.
 
-## ✅ Already Implemented
+---
 
-These core systems are fully functional:
+## 🛠️ Technology Stack
+
+- **Frontend:** Next.js, React, Tailwind CSS for responsive and interactive UI
+- **Backend:** Node.js + Express, providing RESTful APIs and real-time endpoints
+- **Database:** PostgreSQL (managed via Prisma ORM) for accounts, friendships, messages, and settings
+- **Real-Time Communication:** WebSockets for instant messaging, presence, typing indicators, and voice signaling
+- **Authentication:** JWT-based secure login, signup, and session management
+
+---
+
+## ✅ Features Implemented
 
 - 🔐 **Authentication & Account System**  
-  Secure login, signup, session management, and full CRUD operations for user accounts
+  Secure user authentication, session management, and full CRUD operations
 
 - 🧑‍🤝‍🧑 **Friends & 1-on-1 Messaging**  
-  Add, accept, and manage friends; real-time 1-on-1 chat with **full texting experience, emojis, and media support**
+  Add and manage friends, real-time chat with emojis and media support
 
-- 🎨 **Clean Interactive UI**  
-  Modern, responsive design with smooth interactions
+- 🎨 **Responsive UI**  
+  Modern, interactive interface built with React and Tailwind
 
 - 🔌 **WebSocket Integration**  
-  Real-time communication layer with presence, typing indicators, and live updates
+  Real-time updates for messaging, presence, and notifications
+
+---
 
 ## 🚀 Currently in Development
 
-We are actively working on these features:
+- 📞 **1-on-1 Voice Calling**  
+  High-quality audio calls between friends with live connection indicators
 
-- 📞 **1-on-1 Calling**  
-  High-quality voice calls between friends with real-time connection indicators
+---
 
 ## 🧭 Roadmap: Planned Features
 
-Here is what is coming next for Sonora:
-
 - 👥 **Group Chats & Calls**  
-  Multi-user chat rooms and voice rooms with moderation, mute, and raise-hand features
+  Multi-user chat rooms and voice channels with moderation tools
 
 - 🏰 **Beacons (Servers)**  
-  Community spaces to organize chats and calls
+  Community spaces for organizing chats and calls
 
-- ⚙️ **User Settings & Customization**  
+- ⚙️ **User Settings & Profile Customization**  
   Update email, password, notifications, privacy settings, avatars, statuses, bios, and themes
+
+---
 
 ## 💡 Vision
 
-Sonora is more than just a chat app. It is a **community-first communication hub**. Whether connecting with a friend one-on-one or collaborating in a group, Sonora aims to provide **flexible, private, and engaging interactions** for all users.
+Sonora is designed to be a **community-first communication hub**, focusing on **scalable, real-time, and flexible interactions**.
 
-As a **one-man project**, Sonora reflects the vision, effort, and craftsmanship of **Osama Akila**.
+This project reflects the **vision, effort, and craftsmanship of Osama Akila** as a one-man project.
