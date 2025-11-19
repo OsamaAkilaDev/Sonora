@@ -24,9 +24,9 @@ function ChatHeader({ info }) {
             <VideoCallIcon />
           </NavigationButton>
 
-          <NavigationButton name="Voice Call" onClick={toggleIsCallMenu}>
+          {/* <NavigationButton name="Voice Call" onClick={toggleIsCallMenu}>
             <VoiceCallIcon />
-          </NavigationButton>
+          </NavigationButton> */}
 
           <NavigationButton name="options">
             <OptionsUtilIcon />

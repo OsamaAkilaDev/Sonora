@@ -31,7 +31,6 @@ export async function authenticateUser() {
 export async function isUserLoggedIn() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-
   let res = await fetch(backendURL + "/auth/", {
     method: "POST",
     headers: {
@@ -41,7 +40,6 @@ export async function isUserLoggedIn() {
     // credentials: "include" is ignored on server
   });
 
-  console.log(res);
   let data = await res.json();
 
   if (isSuccess(data.status)) {
