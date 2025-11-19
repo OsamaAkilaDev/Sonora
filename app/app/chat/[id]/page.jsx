@@ -1,11 +1,5 @@
 "use client";
-import {
-  OptionsUtilIcon,
-  VideoCallIcon,
-  VoiceCallIcon,
-} from "@/app/components/Icons";
 import MessageComposer from "@/app/components/MessageComposer";
-import ProfileIcon from "@/app/components/ProfileIcon";
 import { backendURL } from "@/app/utils/constants";
 import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
@@ -13,6 +7,7 @@ import { dateOf, timeOf } from "@/app/utils/time";
 import { useSocket } from "@/app/components/SocketProvider";
 import { useUser } from "@/app/components/UserContext";
 import { countEmojis, isOnlyEmojis } from "@/app/utils/stringFunctions";
+import ChatHeader from "@/app/components/ChatHeader";
 
 function page() {
   const params = usePathname().split("/");
@@ -50,13 +45,13 @@ function page() {
     <>
       <ChatHeader info={activeChat?.participants?.[0]?.user} />
 
-      <div className="h-[calc(100%-103px)] pr-2 pl-1.5">
+      <div className="pr-2 pl-1.5 overflow-y-auto">
         <div
-          className="flex max-h-full flex-col-reverse gap-4 px-3 overflow-x-hidden overflow-y-auto chat-srollbar"
+          className="flex h-full max-h-full flex-col px-3 overflow-x-hidden overflow-y-auto chat-srollbar"
           ref={chatBoxRef}
         >
           {loading ? null : activeChat?.messages?.length >= 1 ? (
-            <>
+            <div className="flex flex-col-reverse gap-4">
               <div></div>
 
               {[...activeChat.messages].reverse().map((message) => (
@@ -69,18 +64,20 @@ function page() {
                 />
               ))}
               <div></div>
-            </>
-          ) : (
-            <div className="flex h-screen flex-col items-center justify-center">
-              <div className="flex w-full flex-col items-center justify-center gap-0">
-                <p className="text-shade-600 text-center text-2xl font-medium max-md:text-[18px]">
-                  No messages yet
-                </p>
-                <p className="text-shade-600 max-w-[30%] text-center text-xl max-md:text-[18px]">
-                  Be the first to say hi!
-                </p>
-              </div>
             </div>
+          ) : (
+            <>
+              <div className="flex h-screen flex-col items-center justify-center">
+                <div className="flex w-full flex-col items-center justify-center gap-0">
+                  <p className="text-shade-600 text-center text-2xl font-medium max-md:text-[18px]">
+                    No messages yet
+                  </p>
+                  <p className="text-shade-600 max-w-[30%] text-center text-xl max-md:text-[18px]">
+                    Be the first to say hi!
+                  </p>
+                </div>
+              </div>
+            </>
           )}
         </div>
       </div>
@@ -109,51 +106,6 @@ function page() {
 }
 
 export default page;
-
-function ChatHeader({ info }) {
-  return (
-    <>
-      <nav className="flex h-[50px] w-full items-center justify-between p-2 px-2">
-        <div className="flex items-center gap-3">
-          <div className="h-[30px] w-[30px]">
-            <ProfileIcon clickable={false} img={info?.profilePicture} />
-          </div>
-          <p className="text-shade-600 text-sm font-[420]">
-            {info ? info.displayName : ""}
-          </p>
-        </div>
-
-        <div className="flex h-5 gap-4">
-          <NavigationButton name="Video Call">
-            <VideoCallIcon />
-          </NavigationButton>
-
-          <NavigationButton name="Voice Call">
-            <VoiceCallIcon />
-          </NavigationButton>
-
-          <NavigationButton name="options">
-            <OptionsUtilIcon />
-          </NavigationButton>
-        </div>
-      </nav>
-      <div className="flex w-full items-center justify-center">
-        <div className="bg-shade-700 h-[1.5px] w-[calc(100%-16px)] rounded-2xl"></div>
-      </div>
-    </>
-  );
-}
-
-function NavigationButton({ children, name }) {
-  return (
-    <button
-      className="text-shade-600 hover:text-shade-500 w-5"
-      aria-label={name}
-    >
-      {children}
-    </button>
-  );
-}
 
 function ChatMessage({ img, isoString, username, msg }) {
   const [imgLoaded, setImgLoaded] = useState(false);

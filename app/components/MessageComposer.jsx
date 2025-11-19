@@ -33,12 +33,12 @@ function MessageComposer({ chatId, chatBoxRef }) {
   }
 
   return (
-    <>
+    <div>
       <div className="flex w-full items-center justify-center">
         <div className="bg-shade-700 h-[1.5px] w-[calc(100%-16px)] rounded-2xl"></div>
       </div>
       <form
-        className="flex h-[50px] max-h-20 flex-row gap-2 px-[18px] relative"
+        className="flex max-h-[50px] h-[50px] flex-row gap-2 px-[18px] relative items-center justify-between"
         onSubmit={(e) => onSubmit(e)}
       >
         <textarea
@@ -47,9 +47,10 @@ function MessageComposer({ chatId, chatBoxRef }) {
           name="msg-composer"
           id="msg-composer"
           placeholder="Type your message here"
-          className="text-shade-500 text-4 grow resize-none bg-transparent py-[13px] outline-0"
+          className="text-shade-500 text-4 resize-none bg-transparent outline-0 w-[93%] h-full pt-3"
           onKeyDown={(e) => handleKeydown(e)}
         ></textarea>
+
         <div className="flex h-full flex-row items-center gap-3">
           <EmojiButton setMsgText={setMsgText} />
           <button
@@ -61,7 +62,7 @@ function MessageComposer({ chatId, chatBoxRef }) {
           </button>
         </div>
       </form>
-    </>
+    </div>
   );
 }
 

@@ -77,8 +77,12 @@ img {
   @apply text-cyanora-500 hover:text-cyanora-600 active:text-cyanora-700 hover:underline;
 }
 
-.grid-layout {
+/* .grid-layout {
   @apply grid h-[calc(100vh-79px)] grid-cols-[270px_1fr_270px] gap-2;
+} */
+
+.flex-layout {
+  @apply flex flex-row h-[calc(100vh-79px)] gap-2;
 }
 
 .bubble {

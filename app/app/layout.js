@@ -1,3 +1,4 @@
+import CallMenu from "../components/CallMenu";
 import MainContainer from "../components/MainContainer";
 import DirectMessagesMenu from "../components/side menus/DirectMessagesMenu";
 import SocialMenu from "../components/side menus/SocialMenu";
@@ -19,9 +20,10 @@ export default async function RootLayout({ children }) {
       <UserProvider userData={userData}>
         <SocketProvider userData={userData}>
           <TopBar />
-          <div className="grid-layout">
+          <div className="flex-layout">
             <DirectMessagesMenu />
             <MainContainer>{children}</MainContainer>
+            {/* <CallMenu /> */}
             <SocialMenu />
           </div>
         </SocketProvider>

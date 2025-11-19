@@ -15,7 +15,7 @@ function DirectMessagesMenu() {
   let DisplayedCategory = categories[selectedCategory].element;
 
   return (
-    <aside className="bubble col-start-0 max-h-full min-w-[270px] overflow-hidden p-2">
+    <aside className="bubble col-start-0 max-h-full min-w-[270px] w-[270px] overflow-hidden p-2">
       <TabBar
         categories={categories}
         selectedCategory={selectedCategory}
