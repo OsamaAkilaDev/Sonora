@@ -41,6 +41,7 @@ export async function isUserLoggedIn() {
     // credentials: "include" is ignored on server
   });
 
+  console.log(res);
   let data = await res.json();
 
   if (isSuccess(data.status)) {
