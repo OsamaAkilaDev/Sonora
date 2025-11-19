@@ -37,7 +37,7 @@ export async function isUserLoggedIn() {
       "Content-Type": "application/json",
       ...(token ? { Cookie: `token=${token}` } : {}),
     },
-    // credentials: "include" is ignored on server
+    credentials: "include",
   });
 
   let data = await res.json();
