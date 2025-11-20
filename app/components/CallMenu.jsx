@@ -7,10 +7,9 @@ import { useSideMenu } from "../hooks/useSideMenu";
 
 let AgoraRTC; // We'll import it dynamically
 
-const APP_ID = "4966640f8f824322a9688fd62de19ddb";
-const TOKEN =
-  "007eJxTYJC4zfWCOTk39uaJuI1ezzxVNn2Rmmi5oHm57cPfWefCZ85VYDCxNDMzMzFIs0izMDIxNjJKtDSzsEhLMTNKSTW0TElJ2vlBNrMhkJFh0YFkJkYGCATxWRnyixNzExkYAKKZIQQ=";
-const CHANNEL = "osama";
+const APP_ID = process.env.AGORA_APP_ID;
+const TOKEN = process.env.AGORA_TOKEN;
+const CHANNEL = process.env.AGORA_CHANNEL_NAME;
 
 export default function CallMenu() {
   const [client, setClient] = useState(null);
