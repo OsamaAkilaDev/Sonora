@@ -1,3 +1,4 @@
+"use client";
 import CallMenu from "../components/CallMenu";
 import MainContainer from "../components/MainContainer";
 import DirectMessagesMenu from "../components/side menus/DirectMessagesMenu";
