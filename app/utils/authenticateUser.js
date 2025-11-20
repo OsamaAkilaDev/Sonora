@@ -12,9 +12,10 @@ export async function authenticateUser() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Cookie: `token=${token}` } : {}),
+      Cookie: `token=${token}`,
     },
-    // credentials: "include" is ignored on server
+    credentials: "include",
+    cache: "no-store",
   });
 
   let data = await res.json();
@@ -36,9 +37,10 @@ export async function isUserLoggedIn() {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      ...(token ? { Cookie: `token=${token}` } : {}),
+      Cookie: `token=${token}`,
     },
     credentials: "include",
+    cache: "no-store",
   });
 
   let data = await res.json();
