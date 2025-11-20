@@ -22,11 +22,15 @@ export async function authenticateUser() {
 
   console.log(data);
 
-  if (!isSuccess(data.status)) {
-    return redirect("/login");
+  if (isSuccess(data.status)) {
+    // Set cookie in browser for client-side navigation
+    if (typeof window !== "undefined") {
+      document.cookie = `token=${data.content.token}; path=/; SameSite=None; Secure`;
+    }
+    return data.content.user;
   }
 
-  return data.content.user;
+  return redirect("/login");
 }
 
 export async function isUserLoggedIn() {

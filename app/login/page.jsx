@@ -34,7 +34,8 @@ export default function LoginPage() {
     console.log(data);
 
     if (isSuccess(data.status)) {
-      // await cookieStore.set('token', data.content.token);
+      // Set cookie in browser after successful login
+      document.cookie = `token=${data.content.token}; path=/; SameSite=None; Secure`;
       router.push("/app");
     }
     //
