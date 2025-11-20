@@ -43,6 +43,21 @@ export default function CallMenu() {
 
         await rtcClient.publish([audioTrack, videoTrack]);
 
+        // Subscribe to all currently published remote users
+        rtcClient.remoteUsers.forEach(async (user) => {
+          if (user.hasVideo) {
+            await rtcClient.subscribe(user, "video");
+            setUsers((prev) => [
+              ...prev,
+              { uid: user.uid, videoTrack: user.videoTrack },
+            ]);
+          }
+          if (user.hasAudio) {
+            await rtcClient.subscribe(user, "audio");
+            user.audioTrack.play();
+          }
+        });
+
         rtcClient.on("user-published", async (user, mediaType) => {
           await rtcClient.subscribe(user, mediaType);
 
