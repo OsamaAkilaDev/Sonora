@@ -22,6 +22,10 @@ export const useChats = create((set) => ({
       } else {
         // Append new message
         prev.push({ ...incomingMessage, isSent: true });
+        prev.sort(
+          (a, b) =>
+            new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+        );
       }
 
       // Sort messages by createdAt

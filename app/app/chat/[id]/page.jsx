@@ -158,7 +158,7 @@ function ChatMessage({ img, isoString, username, msg, notSent }) {
           <p className="text-shade-600 selectable text-[11px]">
             {console.log(notSent)}
             {notSent
-              ? "sending..."
+              ? "Sending..."
               : `${dateOf(isoString)} ${timeOf(isoString)}`}
           </p>
         </div>
