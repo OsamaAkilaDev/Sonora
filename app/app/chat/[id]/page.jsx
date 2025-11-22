@@ -5,31 +5,35 @@ import { usePathname } from "next/navigation";
 import React, { useEffect, useRef, useState } from "react";
 import { dateOf, timeOf } from "@/app/utils/time";
 import { useSocket } from "@/app/components/SocketProvider";
-import { useUser } from "@/app/components/UserContext";
 import { countEmojis, isOnlyEmojis } from "@/app/utils/stringFunctions";
 import ChatHeader from "@/app/components/ChatHeader";
+import { useChats } from "@/app/hooks/useChats";
 
 function page() {
   const params = usePathname().split("/");
   const chatId = params[params.length - 1];
 
-  const [activeChat, setActiveChat] = useState({});
+  const {
+    chatData,
+    setChatData,
+    chatMessages,
+    setChatMessages,
+    addSentChatMessages,
+  } = useChats();
+
   const [loading, setLoading] = useState(true);
 
   const chatBoxRef = useRef(null);
 
   const socket = useSocket();
-  const userData = useUser();
 
   useEffect(() => {
     if (!socket) return;
 
     const handleNewMessage = (message) => {
+      console.log("NEW MESSAGE", message);
       if (message.chatId === chatId) {
-        setActiveChat((prev) => ({
-          ...prev,
-          messages: [...(prev.messages || []), message.message],
-        }));
+        addSentChatMessages({ ...message, notSent: false });
       }
     };
 
@@ -41,26 +45,44 @@ function page() {
     fetchChatData(chatId);
   }, [chatId]);
 
+  // useEffect(() => {
+  //   console.log("chat messages", chatMessages);
+  //   console.log("chat data", chatData);
+  // }, [chatData, chatMessages]);
+
+  // useEffect(() => {
+  //   if (chatBoxRef.current) {
+  //     chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+  //   }
+  // }, [chatMessages]);
+
+  useEffect(() => {
+    if (chatBoxRef.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
+  }, []);
+
   return (
     <>
-      <ChatHeader info={activeChat?.participants?.[0]?.user} />
+      <ChatHeader info={chatData?.participants?.[0]?.user} />
 
       <div className="pr-2 pl-1.5 overflow-y-auto">
         <div
           className="flex h-full max-h-full flex-col px-3 overflow-x-hidden overflow-y-auto chat-srollbar"
           ref={chatBoxRef}
         >
-          {loading ? null : activeChat?.messages?.length >= 1 ? (
+          {loading ? null : chatMessages?.length >= 1 ? (
             <div className="flex flex-col-reverse gap-4">
               <div></div>
 
-              {[...activeChat.messages].reverse().map((message) => (
+              {[...chatMessages].reverse().map((message) => (
                 <ChatMessage
                   key={message.id}
                   img={message.sender.profilePicture}
                   isoString={message.createdAt}
                   username={message.sender.displayName}
                   msg={message.content}
+                  notSent={message.notSent}
                 />
               ))}
               <div></div>
@@ -82,7 +104,7 @@ function page() {
         </div>
       </div>
 
-      <MessageComposer chatBoxRef={chatBoxRef} chatId={activeChat?.id} />
+      <MessageComposer chatBoxRef={chatBoxRef} chatId={chatData?.id} />
     </>
   );
 
@@ -96,7 +118,15 @@ function page() {
       });
 
       let data = await res.json();
-      setActiveChat(data.content);
+
+      const { messages, ...chatDataVar } = data.content;
+      console.log("chat messages", messages);
+
+      setChatMessages(messages);
+      setChatData(chatDataVar);
+      setTimeout(() => {
+        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+      }, 50);
     } catch (err) {
       console.error("Failed to fetch chat data:", err);
     } finally {
@@ -107,7 +137,7 @@ function page() {
 
 export default page;
 
-function ChatMessage({ img, isoString, username, msg }) {
+function ChatMessage({ img, isoString, username, msg, notSent }) {
   const [imgLoaded, setImgLoaded] = useState(false);
   return (
     <div className={`flex gap-4 text-white`}>
@@ -126,7 +156,10 @@ function ChatMessage({ img, isoString, username, msg }) {
         <div className={`flex items-baseline gap-3`}>
           <p className="selectable text-[15px]">{username}</p>
           <p className="text-shade-600 selectable text-[11px]">
-            {dateOf(isoString)} {timeOf(isoString)}
+            {console.log(notSent)}
+            {notSent
+              ? "sending..."
+              : `${dateOf(isoString)} ${timeOf(isoString)}`}
           </p>
         </div>
         <p

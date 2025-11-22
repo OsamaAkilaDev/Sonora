@@ -117,7 +117,7 @@ export default function page() {
           disabled={isLoading}
         >
           {isLoading ? (
-            <div>
+            <div className="w-6 h-6">
               <LoadingSpinner />
             </div>
           ) : (

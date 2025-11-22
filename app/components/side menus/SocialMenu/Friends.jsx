@@ -51,7 +51,7 @@ function Friends() {
     return (
       <div className="flex h-full flex-col gap-2">
         <div className="flex h-full w-full items-center justify-center">
-          <div className="text-shade-600 w-8 h-8">
+          <div className="text-shade-600 w-6 h-6">
             <LoadingSpinner />
           </div>
         </div>

@@ -4,25 +4,49 @@ import { isSuccess } from "../utils/status";
 import { postRequest } from "../utils/fetchers";
 import { SendIcon } from "./Icons";
 import EmojiButton from "./EmojiButton";
+import { useChats } from "../hooks/useChats";
+import { useUser } from "./UserContext";
 
 function MessageComposer({ chatId, chatBoxRef }) {
   const [msgText, setMsgText] = useState("");
+  const { addUnsentChatMessage, chatData, chatMessages } = useChats();
+  const { userData } = useUser();
+
   async function onSubmit(e) {
     e.preventDefault();
+    let msgTextVar = msgText;
+    setMsgText("");
 
-    if (!msgText) return;
+    if (!msgTextVar) return;
+
+    let newMessage = {
+      chatId: chatData.id,
+      content: msgTextVar,
+      createdAt: new Date().toISOString(),
+      id: `temp-${Date.now()}`,
+      sender: {
+        id: userData.id,
+        displayName: userData.displayName,
+        username: userData.username,
+        profilePicture: userData.profilePicture,
+      },
+      senderId: userData.id,
+      updatedAt: new Date().toISOString(),
+      notSent: true,
+    };
+    addUnsentChatMessage(newMessage);
+
+    setTimeout(() => {
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }, 50);
 
     let res = await postRequest("/chat/message", {
       chatId: chatId,
-      messageContent: msgText,
+      tempId: newMessage.id,
+      messageContent: msgTextVar,
     });
 
-    let data = await res.json();
-
-    if (isSuccess(data.status)) {
-      setMsgText("");
-      chatBoxRef.current.scrollTop = 0;
-    }
+    // let data = await res.json();
   }
 
   function handleKeydown(e) {

@@ -1,6 +1,10 @@
 "use client";
 import React, { Children, useEffect, useState } from "react";
-import { AddUtilIcon, ListExpandedIcon, UsernameIcon } from "../../Icons";
+import LoadingSpinner, {
+  AddUtilIcon,
+  ListExpandedIcon,
+  UsernameIcon,
+} from "../../Icons";
 import { getRequest, postRequest } from "@/app/utils/fetchers";
 import { errorToast, successToast } from "@/app/utils/toasts";
 import { isSuccess } from "@/app/utils/status";
@@ -11,6 +15,9 @@ function Pending() {
   const [requestedRequests, setRequestedRequests] = useState([]);
   const [receievedRequests, setReceievedRequests] = useState([]);
   const socket = useSocket();
+
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     fetchRequests();
@@ -39,14 +46,19 @@ function Pending() {
             <UsernameIcon />
           </div>
           <input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             id="username"
             name="username"
             placeholder="Enter username to add"
             className="h-full w-full text-sm outline-none"
           />
         </div>
-        <button className="cyan-btn aspect-square h-full rounded-sm p-1.5">
-          <AddUtilIcon />
+        <button
+          disabled={loading}
+          className="cyan-btn aspect-square h-full rounded-sm p-1.5"
+        >
+          {loading ? <LoadingSpinner /> : <AddUtilIcon />}
         </button>
       </form>
 
@@ -90,11 +102,13 @@ function Pending() {
 
   async function onSubmit(e) {
     e.preventDefault();
-    let formData = new FormData(e.target);
 
-    let username = formData.get("username");
+    // let formData = new FormData(e.target);
+    // let username = formData.get("username");
 
     if (!username) return;
+
+    setLoading(true);
 
     let res = await postRequest("/relation/send-friendship-request", {
       username: username,
@@ -102,10 +116,14 @@ function Pending() {
 
     let data = await res.json();
 
-    // console.log(data);
-
-    if (isSuccess(data.status)) successToast("Friend Request Sent!");
+    if (isSuccess(data.status)) {
+      successToast("Friend Request Sent!");
+      setUsername("");
+    }
+    //
     else errorToast(data.content);
+
+    setLoading(false);
   }
 
   async function fetchRequests() {

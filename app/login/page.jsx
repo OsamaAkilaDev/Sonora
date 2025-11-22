@@ -84,7 +84,13 @@ export default function LoginPage() {
           type="submit"
           disabled={isLoading}
         >
-          {isLoading ? <LoadingSpinner /> : "Log in"}
+          {isLoading ? (
+            <div className="w-6 h-6">
+              <LoadingSpinner />
+            </div>
+          ) : (
+            "Log in"
+          )}
         </button>
       </form>
 
