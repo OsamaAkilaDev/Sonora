@@ -34,6 +34,9 @@ function page() {
       console.log("NEW MESSAGE", message);
       if (message.chatId === chatId) {
         addSentChatMessages({ ...message, notSent: false });
+        setTimeout(() => {
+          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+        }, 50);
       }
     };
 
