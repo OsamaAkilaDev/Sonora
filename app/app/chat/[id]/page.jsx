@@ -208,20 +208,24 @@ function ChatMessageGroup({ img, username, messages }) {
             {dateOf(messages[0].createdAt)} {timeOf(messages[0].createdAt)}
           </p>
         </div>
-        {[...messages].map((message) => (
-          <p
-            key={message.id}
-            className={`selectable ${
-              message.notSent ? "text-shade-600" : "text-white"
-            } font-light whitespace-pre-line ${
-              isOnlyEmojis(message.content) && countEmojis(message.content) < 9
-                ? "text-4xl"
-                : "text-md"
-            }`}
-          >
-            {message.content}
-          </p>
-        ))}
+        {[...messages].map((message) => {
+          const msg = message.content;
+          let size = "text-md";
+          let color = "text-shade-600";
+          if (countEmojis(msg) > 0 && isOnlyEmojis(msg) && countEmojis(msg) < 9)
+            size = "text-4xl";
+
+          if (!message.notSent) color = "text-white";
+
+          return (
+            <p
+              key={message.id}
+              className={`selectable ${color} font-light whitespace-pre-line ${size}`}
+            >
+              {message.content}
+            </p>
+          );
+        })}
       </div>
     </div>
   );
