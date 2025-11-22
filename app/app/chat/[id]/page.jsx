@@ -65,6 +65,8 @@ function page() {
     }
   }, []);
 
+  const grouped = groupMessages([...chatMessages]);
+  console.log(grouped);
   return (
     <>
       <ChatHeader info={chatData?.participants?.[0]?.user} />
@@ -78,7 +80,7 @@ function page() {
             <div className="flex flex-col-reverse gap-4">
               <div></div>
 
-              {[...chatMessages].reverse().map((message) => (
+              {/* {[...chatMessages].reverse().map((message) => (
                 <ChatMessage
                   key={message.id}
                   img={message.sender.profilePicture}
@@ -86,6 +88,15 @@ function page() {
                   username={message.sender.displayName}
                   msg={message.content}
                   notSent={message.notSent}
+                />
+              ))} */}
+
+              {grouped.reverse().map((group) => (
+                <ChatMessageGroup
+                  key={group.messages[0].id}
+                  img={group.sender.profilePicture}
+                  username={group.sender.displayName}
+                  messages={group.messages}
                 />
               ))}
               <div></div>
@@ -123,7 +134,6 @@ function page() {
       let data = await res.json();
 
       const { messages, ...chatDataVar } = data.content;
-      console.log("chat messages", messages);
 
       setChatMessages(messages);
       setChatData(chatDataVar);
@@ -159,7 +169,6 @@ function ChatMessage({ img, isoString, username, msg, notSent }) {
         <div className={`flex items-baseline gap-3`}>
           <p className="selectable text-[15px]">{username}</p>
           <p className="text-shade-600 selectable text-[11px]">
-            {console.log(notSent)}
             {notSent
               ? "Sending..."
               : `${dateOf(isoString)} ${timeOf(isoString)}`}
@@ -175,4 +184,73 @@ function ChatMessage({ img, isoString, username, msg, notSent }) {
       </div>
     </div>
   );
+}
+
+function ChatMessageGroup({ img, username, messages }) {
+  const [imgLoaded, setImgLoaded] = useState(false);
+  return (
+    <div className={`flex gap-4 text-white`}>
+      {!imgLoaded && (
+        <div className="h-[37px] w-[37px] rounded-full bg-shade-700 animate-pulse"></div>
+      )}
+      <img
+        className={`h-[37px] w-[37px] rounded-full ${
+          imgLoaded ? "" : "hidden"
+        }`}
+        src={img ? img : "/default_pfp.png"}
+        alt={username}
+        onLoad={() => setImgLoaded(true)}
+      />
+      <div className="flex flex-col items-start gap-[1.5px]">
+        <div className={`flex items-baseline gap-3`}>
+          <p className="selectable text-[15px]">{username}</p>
+          <p className="text-shade-600 selectable text-[11px]">
+            {dateOf(messages[0].createdAt)} {timeOf(messages[0].createdAt)}
+          </p>
+        </div>
+        {[...messages].map((message) => (
+          <p
+            key={message.id}
+            className={`selectable ${
+              message.notSent ? "text-shade-600" : "text-white"
+            } font-light whitespace-pre-line ${
+              isOnlyEmojis(message.content) && countEmojis(message.content) < 9
+                ? "text-4xl"
+                : "text-md"
+            }`}
+          >
+            {message.content}
+          </p>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function groupMessages(messages) {
+  const GROUP_WINDOW_MINUTES = 5;
+  const groups = [];
+  let currentGroup = null;
+
+  messages.forEach((msg) => {
+    const previous = currentGroup?.messages[currentGroup.messages.length - 1];
+
+    const sameSender = previous?.senderId === msg.senderId;
+    const closeInTime =
+      previous &&
+      (new Date(msg.createdAt) - new Date(previous.createdAt)) / 1000 / 60 <
+        GROUP_WINDOW_MINUTES;
+
+    if (sameSender && closeInTime) {
+      currentGroup.messages.push(msg);
+    } else {
+      currentGroup = {
+        sender: msg.sender,
+        messages: [msg],
+      };
+      groups.push(currentGroup);
+    }
+  });
+
+  return groups;
 }

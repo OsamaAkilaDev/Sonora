@@ -7,8 +7,6 @@ export async function authenticateUser() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  console.log(token);
-
   let res = await fetch(backendURL + "/auth/", {
     method: "POST",
     headers: {
@@ -19,8 +17,6 @@ export async function authenticateUser() {
   });
 
   let data = await res.json();
-
-  console.log(data);
 
   if (isSuccess(data.status)) {
     // Set cookie in browser for client-side navigation
