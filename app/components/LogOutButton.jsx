@@ -10,7 +10,16 @@ function LogOutButton() {
     <button
       className="hover:text-shade-500 text-shade-600 h-5 w-5 hover:cursor-pointer transform-[scale(-1,1)]"
       onClick={async () => {
-        await postRequest("/auth/logout");
+        // await postRequest("/auth/logout");
+        // router.refresh();
+
+        let res = await fetch(backendURL + "/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        });
         router.refresh();
       }}
     >
