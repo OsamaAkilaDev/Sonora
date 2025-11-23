@@ -24,6 +24,10 @@ function page() {
   const [loading, setLoading] = useState(true);
 
   const chatBoxRef = useRef(null);
+  function scrollToBottom() {
+    if (chatBoxRef)
+      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+  }
 
   const socket = useSocket();
 
@@ -34,9 +38,7 @@ function page() {
       console.log("NEW MESSAGE", message);
       if (message.chatId === chatId) {
         addSentChatMessages({ ...message, notSent: false });
-        setTimeout(() => {
-          chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-        }, 50);
+        setTimeout(scrollToBottom, 50);
       }
     };
 
@@ -118,7 +120,7 @@ function page() {
         </div>
       </div>
 
-      <MessageComposer chatBoxRef={chatBoxRef} chatId={chatData?.id} />
+      <MessageComposer scrollToBottom={scrollToBottom} chatId={chatData?.id} />
     </>
   );
 
@@ -137,9 +139,7 @@ function page() {
 
       setChatMessages(messages);
       setChatData(chatDataVar);
-      setTimeout(() => {
-        chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-      }, 50);
+      setTimeout(scrollToBottom, 50);
     } catch (err) {
       console.error("Failed to fetch chat data:", err);
     } finally {

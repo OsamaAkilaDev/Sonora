@@ -18,6 +18,7 @@ function Pending() {
 
   const [username, setUsername] = useState("");
   const [loading, setLoading] = useState(false);
+  const [loadingAll, setLoadingAll] = useState(true);
 
   useEffect(() => {
     fetchRequests();
@@ -29,6 +30,9 @@ function Pending() {
     const handleUpdateSocialData = (message) => {
       setRequestedRequests(message.sentRequests || []);
       setReceievedRequests(message.receivedRequests || []);
+      // successToast("Friend Request Sent!");
+      setUsername("");
+      setLoading(false);
     };
 
     socket.on("update-social-data", handleUpdateSocialData);
@@ -37,6 +41,11 @@ function Pending() {
       socket.off("update-social-data", handleUpdateSocialData);
     };
   }, [socket]);
+
+  useEffect(() => {
+    console.log(requestedRequests);
+    console.log(receievedRequests);
+  }, [receievedRequests, requestedRequests]);
 
   return (
     <>
@@ -62,7 +71,15 @@ function Pending() {
         </button>
       </form>
 
-      <RequestsList />
+      {loadingAll ? (
+        <div className="flex-1 flex items-center justify-center">
+          <div className="text-shade-600 w-6 h-6">
+            <LoadingSpinner />
+          </div>
+        </div>
+      ) : (
+        <RequestsList />
+      )}
     </>
   );
 
@@ -121,9 +138,10 @@ function Pending() {
       setUsername("");
     }
     //
-    else errorToast(data.content);
-
-    setLoading(false);
+    else {
+      setLoading(false);
+      errorToast(data.content);
+    }
   }
 
   async function fetchRequests() {
@@ -141,6 +159,7 @@ function Pending() {
           ? data.content.receivedFriendships
           : []
       );
+      setLoadingAll(false);
     } catch (error) {
       console.error("Failed to fetch chats:", error);
       setRequestedRequests([]);

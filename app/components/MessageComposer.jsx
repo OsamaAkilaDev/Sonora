@@ -7,7 +7,7 @@ import EmojiButton from "./EmojiButton";
 import { useChats } from "../hooks/useChats";
 import { useUser } from "./UserContext";
 
-function MessageComposer({ chatId, chatBoxRef }) {
+function MessageComposer({ chatId, scrollToBottom }) {
   const [msgText, setMsgText] = useState("");
   const { addUnsentChatMessage, chatData, chatMessages } = useChats();
   const { userData } = useUser();
@@ -36,9 +36,7 @@ function MessageComposer({ chatId, chatBoxRef }) {
     };
     addUnsentChatMessage(newMessage);
 
-    setTimeout(() => {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
-    }, 50);
+    setTimeout(scrollToBottom, 50);
 
     let res = await postRequest("/chat/message", {
       chatId: chatId,

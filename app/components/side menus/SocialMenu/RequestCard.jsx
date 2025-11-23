@@ -1,11 +1,34 @@
-import React from "react";
-import { CancelIcon, CheckmarkIcon, CrossIcon } from "../../Icons";
+import React, { useEffect, useState } from "react";
+import LoadingSpinner, {
+  CancelIcon,
+  CheckmarkIcon,
+  CrossIcon,
+} from "../../Icons";
 import ProfileIcon from "../../ProfileIcon";
 import { deleteRequest, putRequest } from "@/app/utils/fetchers";
 import { isSuccess } from "@/app/utils/status";
 import { errorToast, iconToast, successToast } from "@/app/utils/toasts";
+import { useSocket } from "../../SocketProvider";
 
 function RequestCard({ displayName, username, isSent, requestId, img }) {
+  const [loading, setLoading] = useState(false);
+
+  const socket = useSocket();
+
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleUpdateSocialData = (message) => {
+      setLoading(false);
+    };
+
+    socket.on("update-social-data", handleUpdateSocialData);
+
+    return () => {
+      socket.off("update-social-data", handleUpdateSocialData);
+    };
+  }, [socket]);
+
   return (
     <div className="item flex h-13 w-full items-center gap-3.5 rounded-md p-2 transition-all duration-300">
       <div className="h-[35px] w-[35px]">
@@ -21,24 +44,39 @@ function RequestCard({ displayName, username, isSent, requestId, img }) {
         {isSent ? (
           <ActionButton
             name="Cancel"
-            action={() => cancelFriendRequest(requestId)}
+            action={() => {
+              setLoading(true);
+              cancelFriendRequest(requestId);
+            }}
+            disabled={loading}
           >
-            <CancelIcon />
+            {loading ? <LoadingSpinner /> : <CancelIcon />}
           </ActionButton>
         ) : (
           <>
             <ActionButton
               name="Accept"
-              action={() => acceptFriendRequest(requestId)}
+              action={() => {
+                setLoading(true);
+                acceptFriendRequest(requestId);
+              }}
+              disabled={loading}
             >
-              <CheckmarkIcon />
+              {loading ? <LoadingSpinner /> : <CheckmarkIcon />}
             </ActionButton>
-            <ActionButton
-              name="Deny"
-              action={() => rejectFriendRequest(requestId)}
-            >
-              <CrossIcon />
-            </ActionButton>
+
+            {!loading && (
+              <ActionButton
+                name="Deny"
+                action={() => {
+                  setLoading(true);
+                  rejectFriendRequest(requestId);
+                }}
+                disabled={loading}
+              >
+                {loading ? <LoadingSpinner /> : <CrossIcon />}
+              </ActionButton>
+            )}
           </>
         )}
       </div>
@@ -48,12 +86,13 @@ function RequestCard({ displayName, username, isSent, requestId, img }) {
 
 export default RequestCard;
 
-function ActionButton({ name, action, children }) {
+function ActionButton({ name, action, children, ...props }) {
   return (
     <button
       className="bg-shade-800 hover:bg-shade-700 active:bg-shade-650 text-shade-600 flex aspect-square h-full cursor-pointer items-center justify-center rounded-full p-1.5"
       onClick={action}
       aria-label={name}
+      {...props}
     >
       {children}
     </button>
