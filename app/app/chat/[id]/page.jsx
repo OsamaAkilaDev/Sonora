@@ -9,6 +9,8 @@ import { countEmojis, isOnlyEmojis } from "@/app/utils/stringFunctions";
 import ChatHeader from "@/app/components/ChatHeader";
 import { useChats } from "@/app/hooks/useChats";
 
+// CHAT PAGE
+
 function page() {
   const params = usePathname().split("/");
   const chatId = params[params.length - 1];
