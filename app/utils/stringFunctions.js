@@ -14,10 +14,3 @@ export function countEmojis(str) {
   const matches = str.match(emojiRegex);
   return matches ? matches.length : 0;
 }
-
-console.log(isOnlyEmojis("123")); // false
-console.log(isOnlyEmojis("😂")); // true
-console.log(isOnlyEmojis("😂😂")); // true
-console.log(isOnlyEmojis("😂1")); // false
-console.log(isOnlyEmojis("1️⃣")); // true (keycap emoji)
-console.log(isOnlyEmojis("🔥 💀")); // false (space)

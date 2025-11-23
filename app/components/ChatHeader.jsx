@@ -4,7 +4,7 @@ import { OptionsUtilIcon, VideoCallIcon, VoiceCallIcon } from "./Icons";
 import { useSideMenu } from "../hooks/useSideMenu";
 import CallMenu from "./CallMenu";
 
-function ChatHeader({ info }) {
+function ChatHeader({ loading, info }) {
   const { isCallMenu, toggleIsCallMenu } = useSideMenu();
 
   return (
@@ -12,9 +12,17 @@ function ChatHeader({ info }) {
       <nav className="flex h-[50px] w-full items-center justify-between p-2 px-2">
         <div className="flex items-center gap-3">
           <div className="h-[30px] w-[30px]">
-            <ProfileIcon clickable={false} img={info?.profilePicture} />
+            {loading ? (
+              <div className="w-full h-full skeleton rounded-full"></div>
+            ) : (
+              <ProfileIcon clickable={false} img={info?.profilePicture} />
+            )}
           </div>
-          <p className="text-shade-600 text-sm font-[420]">
+          <p
+            className={`text-shade-600 text-sm font-[420] ${
+              loading ? "skeleton w-20 rounded-sm h-3.5" : ""
+            }`}
+          >
             {info ? info.displayName : ""}
           </p>
         </div>

@@ -25,8 +25,9 @@ function page() {
 
   const chatBoxRef = useRef(null);
   function scrollToBottom() {
-    if (chatBoxRef)
+    if (chatBoxRef?.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    }
   }
 
   const socket = useSocket();
@@ -62,36 +63,34 @@ function page() {
   // }, [chatMessages]);
 
   useEffect(() => {
-    if (chatBoxRef.current) {
-      chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;
+    if (chatBoxRef?.current) {
+      chatBoxRef.current.scrollTop = chatBoxRef?.current?.scrollHeight;
     }
   }, []);
 
   const grouped = groupMessages([...chatMessages]);
-  console.log(grouped);
   return (
     <>
-      <ChatHeader info={chatData?.participants?.[0]?.user} />
+      <ChatHeader loading={loading} info={chatData?.participants?.[0]?.user} />
 
       <div className="pr-2 pl-1.5 overflow-y-auto">
         <div
           className="flex h-full max-h-full flex-col px-3 overflow-x-hidden overflow-y-auto chat-srollbar"
           ref={chatBoxRef}
         >
-          {loading ? null : chatMessages?.length >= 1 ? (
+          {loading ? (
             <div className="flex flex-col-reverse gap-4">
               <div></div>
 
-              {/* {[...chatMessages].reverse().map((message) => (
-                <ChatMessage
-                  key={message.id}
-                  img={message.sender.profilePicture}
-                  isoString={message.createdAt}
-                  username={message.sender.displayName}
-                  msg={message.content}
-                  notSent={message.notSent}
-                />
-              ))} */}
+              {[1, 2, 3, 4, 5].map((val) => (
+                <ChatMessageSkeleton key={val} />
+              ))}
+
+              <div></div>
+            </div>
+          ) : chatMessages?.length >= 1 ? (
+            <div className="flex flex-col-reverse gap-4">
+              <div></div>
 
               {grouped.reverse().map((group) => (
                 <ChatMessageGroup
@@ -101,6 +100,7 @@ function page() {
                   messages={group.messages}
                 />
               ))}
+
               <div></div>
             </div>
           ) : (
@@ -150,37 +150,23 @@ function page() {
 
 export default page;
 
-function ChatMessage({ img, isoString, username, msg, notSent }) {
-  const [imgLoaded, setImgLoaded] = useState(false);
+function ChatMessageSkeleton() {
   return (
-    <div className={`flex gap-4 text-white`}>
-      {!imgLoaded && (
-        <div className="h-[37px] w-[37px] rounded-full bg-shade-700 animate-pulse"></div>
-      )}
-      <img
-        className={`h-[37px] w-[37px] rounded-full ${
-          imgLoaded ? "" : "hidden"
-        }`}
-        src={img ? img : "/default_pfp.png"}
-        alt={username}
-        onLoad={() => setImgLoaded(true)}
-      />
-      <div className="flex flex-col items-start gap-[1.5px]">
-        <div className={`flex items-baseline gap-3`}>
-          <p className="selectable text-[15px]">{username}</p>
-          <p className="text-shade-600 selectable text-[11px]">
-            {notSent
-              ? "Sending..."
-              : `${dateOf(isoString)} ${timeOf(isoString)}`}
-          </p>
+    <div className="flex gap-4 text-white">
+      <div className="h-[37px] w-[37px] rounded-full skeleton" />
+      <div className="flex flex-col items-start gap-2">
+        <div className="flex items-baseline gap-2">
+          {/* username placeholder */}
+          <p className="selectable h-3.5 w-20 skeleton rounded-sm"></p>
+
+          {/* time placeholder */}
+          <p className="text-shade-600 selectable h-3.5 w-15 rounded-sm skeleton"></p>
         </div>
+
+        {/* message placeholder */}
         <p
-          className={`selectable font-light whitespace-pre-line ${
-            isOnlyEmojis(msg) && countEmojis(msg) < 9 ? "text-4xl" : "text-md"
-          }`}
-        >
-          {msg}
-        </p>
+          className={`selectable font-light whitespace-pre-line rounded-sm h-4.5 w-60 skeleton`}
+        ></p>
       </div>
     </div>
   );
