@@ -28,9 +28,15 @@ function ChatHeader({ loading, info }) {
         </div>
 
         <div className="flex h-5 gap-4">
-          <NavigationButton name="Video Call" onClick={toggleIsCallMenu}>
-            <VideoCallIcon />
-          </NavigationButton>
+          {loading || isCallMenu ? null : (
+            <NavigationButton
+              name="Video Call"
+              disabled={loading || isCallMenu}
+              onClick={toggleIsCallMenu}
+            >
+              <VideoCallIcon />
+            </NavigationButton>
+          )}
 
           {/* <NavigationButton name="Voice Call" onClick={toggleIsCallMenu}>
             <VoiceCallIcon />
