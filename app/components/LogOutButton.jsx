@@ -3,6 +3,7 @@ import React from "react";
 import { LogOutIcon } from "./Icons";
 import { postRequest } from "../utils/fetchers";
 import { useRouter } from "next/navigation";
+import { backendURL } from "../utils/constants";
 
 function LogOutButton() {
   const router = useRouter();
