@@ -4,6 +4,7 @@ import { Link, useParams } from "@tanstack/react-router";
 import * as m from "motion/react-m";
 import { cx } from "../../lib/cx";
 import { listTime } from "../../lib/format";
+import { usePhone } from "../../lib/phone";
 import { Avatar } from "../../ui/avatar";
 import { Button } from "../../ui/button";
 import { meQuery } from "../auth/queries";
@@ -62,6 +63,7 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
   const peer = peerOf(chat, me.id);
   const typing = useTypingIn(chat.id);
   const calling = useCalls((s) => !!s.byChat[chat.id]);
+  const size = usePhone() ? 48 : 40;
   const last = chat.lastMessage;
   const unread = chat.unread > 0;
   const sender =
@@ -78,20 +80,20 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
       params={{ chatId: chat.id }}
       aria-current={active ? "page" : undefined}
       className={cx(
-        "flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors duration-150",
+        "flex items-center gap-3 rounded-xl px-2.5 py-2 transition-colors duration-150 max-md:py-3 max-md:active:bg-hover",
         active ? "bg-inset" : "hover:bg-hover",
       )}
     >
       {peer ? (
-        <Avatar seed={peer.avatarSeed} size={40} status={peer.presence} />
+        <Avatar seed={peer.avatarSeed} size={size} status={peer.presence} />
       ) : (
-        <GroupAvatar chat={chat} meId={me.id} />
+        <GroupAvatar chat={chat} meId={me.id} size={size} />
       )}
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
           <span
             className={cx(
-              "min-w-0 flex-1 truncate text-sm",
+              "min-w-0 flex-1 truncate text-sm max-md:text-base",
               unread ? "font-semibold" : "font-medium",
             )}
           >
@@ -111,7 +113,7 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
         <div className="flex items-center gap-2">
           <span
             className={cx(
-              "min-w-0 flex-1 truncate text-[13px]",
+              "min-w-0 flex-1 truncate text-[13px] max-md:text-sm",
               calling || typing.length ? "text-cyan-ink" : unread ? "text-ink-2" : "text-slate",
             )}
           >

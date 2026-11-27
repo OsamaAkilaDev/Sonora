@@ -3,6 +3,9 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content" />
+    <!-- First match wins: phones are full-bleed panel colour, wider screens show the canvas. -->
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light) and (width < 48rem)" />
+    <meta name="theme-color" content="#121212" media="(prefers-color-scheme: dark) and (width < 48rem)" />
     <meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#060606" media="(prefers-color-scheme: dark)" />
     <title>Sonora</title>

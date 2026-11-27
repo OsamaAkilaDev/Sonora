@@ -84,6 +84,10 @@ export function send(e: ClientEvent) {
   if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify(e));
 }
 
+/** What to tell people when live updates are down; null while all is well. */
+export const connectionLabel = (s: Connection) =>
+  s === "online" ? null : s === "offline" ? "Offline" : "Reconnecting…";
+
 export const useConnection = () =>
   useSyncExternalStore(
     (cb) => {

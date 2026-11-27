@@ -2,7 +2,7 @@ import { At, DotsThree, UserMinus } from "@phosphor-icons/react";
 import { type PublicUser, username as usernameSchema } from "@sonora/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, type ReactNode, useState } from "react";
 import { ApiError } from "../../lib/api";
 import { cx } from "../../lib/cx";
 import { timeAgo } from "../../lib/format";
@@ -26,7 +26,8 @@ export const presenceLabel = (u: PublicUser) =>
           ? `Last seen ${timeAgo(u.lastSeenAt)}`
           : "Offline";
 
-export function FriendList() {
+/** `requests`: where phones, which have no Requests tab, show them. */
+export function FriendList({ requests }: { requests?: ReactNode }) {
   const { data, isPending } = useQuery(socialQuery);
   const friends = data?.friends ?? [];
   const online = friends.filter((f) => f.presence !== "offline");
@@ -35,6 +36,7 @@ export function FriendList() {
   return (
     <div className="flex flex-col gap-1">
       <AddFriend />
+      {requests}
       {isPending ? (
         <RowSkeletons rows={4} />
       ) : !friends.length ? (
@@ -148,7 +150,7 @@ function AddFriend() {
             aria-invalid={error ? true : undefined}
             autoCapitalize="none"
             spellCheck={false}
-            className={cx(inputClass, "h-[34px] rounded-full pl-8")}
+            className={cx(inputClass, "h-[34px] rounded-full pl-8 pointer-coarse:h-11")}
           />
         </div>
         <Button type="submit" loading={send.isPending} disabled={!value.trim()}>

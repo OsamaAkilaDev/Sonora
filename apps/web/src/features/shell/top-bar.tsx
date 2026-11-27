@@ -6,10 +6,10 @@ import { IconButton } from "../../ui/button";
 import { Logo } from "../../ui/logo";
 import { Menu, MenuItem, MenuSeparator } from "../../ui/menu";
 import { meQuery, useLogout } from "../auth/queries";
-import { useConnection } from "../realtime/socket";
+import { connectionLabel, useConnection } from "../realtime/socket";
 import { useSwitcher } from "../switcher/switcher";
 
-const statusLabel = {
+export const statusLabel = {
   online: "Online",
   idle: "Idle",
   dnd: "Do not disturb",
@@ -57,11 +57,11 @@ export function TopBar() {
         type="button"
         onClick={() => useSwitcher.getState().set(true)}
         aria-label="Search or jump to (Ctrl K)"
-        className="mx-auto flex h-[34px] w-[min(440px,40vw)] items-center gap-2 rounded-full bg-inset pr-1.5 pl-3.5 text-sm text-ash transition-[background-color,box-shadow] duration-150 hover:bg-panel hover:shadow-[inset_0_0_0_1px_var(--line)] max-md:mr-0 max-md:ml-auto max-md:w-auto max-md:pr-2.5 max-md:pl-2.5"
+        className="mx-auto flex h-[34px] w-[min(440px,40vw)] items-center gap-2 rounded-full bg-inset pr-1.5 pl-3.5 text-sm text-ash transition-[background-color,box-shadow] duration-150 hover:bg-panel hover:shadow-[inset_0_0_0_1px_var(--line)]"
       >
         <MagnifyingGlass aria-hidden className="text-base" />
-        <span className="max-md:hidden">Search or jump to…</span>
-        <kbd className="ml-auto rounded-md bg-panel px-1.5 py-0.5 font-mono text-[11px] text-slate shadow-[0_0_0_1px_var(--line)] max-md:hidden">
+        <span>Search or jump to…</span>
+        <kbd className="ml-auto rounded-md bg-panel px-1.5 py-0.5 font-mono text-[11px] text-slate shadow-[0_0_0_1px_var(--line)]">
           Ctrl K
         </kbd>
       </button>
@@ -83,7 +83,8 @@ export function TopBar() {
 /** Shows only when live updates are down; quiet otherwise. */
 function ConnectionPill() {
   const state = useConnection();
-  if (state === "online") return null;
+  const label = connectionLabel(state);
+  if (!label) return null;
   return (
     <span
       role="status"
@@ -92,7 +93,7 @@ function ConnectionPill() {
       <span
         className={`size-1.5 rounded-full ${state === "offline" ? "bg-ash" : "animate-pulse bg-amber"}`}
       />
-      {state === "offline" ? "Offline" : "Reconnecting…"}
+      {label}
     </span>
   );
 }

@@ -44,7 +44,7 @@ export function MenuItem({
     <M.Item
       onClick={onClick}
       className={cx(
-        "flex h-[34px] cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-[13.5px] outline-none select-none",
+        "flex h-[34px] pointer-coarse:h-11 cursor-pointer items-center gap-2.5 rounded-[9px] px-2.5 text-[13.5px] outline-none select-none",
         "data-highlighted:bg-hover [&>svg]:text-base",
         danger ? "text-red" : "text-ink",
       )}

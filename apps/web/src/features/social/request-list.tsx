@@ -7,13 +7,14 @@ import { RowSkeletons } from "../chats/chat-list";
 import { EmptyState } from "../shell/empty-state";
 import { socialQuery, useAcceptRequest, useDeclineRequest } from "./queries";
 
-export function RequestList() {
+/** `inline`: inside another list, so it takes no space while there's nothing to show. */
+export function RequestList({ inline }: { inline?: boolean }) {
   const { data, isPending } = useQuery(socialQuery);
-  if (isPending) return <RowSkeletons rows={3} />;
+  if (isPending) return inline ? null : <RowSkeletons rows={3} />;
   const incoming = data?.requests.filter((r) => r.direction === "incoming") ?? [];
   const outgoing = data?.requests.filter((r) => r.direction === "outgoing") ?? [];
   if (!incoming.length && !outgoing.length)
-    return (
+    return inline ? null : (
       <EmptyState
         title="All caught up"
         body="Friend requests you send or receive will show up here."

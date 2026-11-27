@@ -32,7 +32,7 @@ export function NotifyPrompt() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.2, 0, 0, 1] }}
-      className="mt-2 grid gap-2.5 rounded-xl bg-inset p-3"
+      className="mt-2 grid gap-2.5 rounded-xl bg-inset p-3 max-md:mt-0 max-md:mb-2"
     >
       <div className="flex gap-2.5">
         <BellRinging aria-hidden weight="fill" className="mt-0.5 text-lg text-cyan-ink" />

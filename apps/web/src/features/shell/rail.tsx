@@ -87,11 +87,7 @@ export function Rail() {
         {tab === "requests" && <RequestList />}
       </div>
       <NotifyPrompt />
-      {call.desktop && (
-        <div className="max-md:hidden">
-          <CallDock variant="card" />
-        </div>
-      )}
+      {call.desktop && <CallDock variant="card" />}
       <NewGroupDialog open={newGroup} onOpenChange={setNewGroup} />
     </div>
   );

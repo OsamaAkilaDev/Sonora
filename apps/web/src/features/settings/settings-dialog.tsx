@@ -19,6 +19,7 @@ import { setThemePref, type ThemePref, useThemePref } from "../../lib/theme";
 import { Button } from "../../ui/button";
 import { Segmented } from "../../ui/segmented";
 import { meQuery, useLogout } from "../auth/queries";
+import { useBack } from "../shell/navigation";
 import { DevicesCards } from "./devices-section";
 import { NotificationsCards } from "./notifications-section";
 import { sessionsQuery, useRevokeOthers, useRevokeSession } from "./queries";
@@ -32,7 +33,7 @@ export const settingsSections = [
 ] as const;
 export type SettingsSection = (typeof settingsSections)[number];
 
-const nav: { id: SettingsSection; label: string; icon: Icon }[] = [
+export const settingsNav: { id: SettingsSection; label: string; icon: Icon }[] = [
   { id: "account", label: "Account", icon: ShieldCheck },
   { id: "sessions", label: "Sessions", icon: Desktop },
   { id: "devices", label: "Voice & video", icon: Headphones },
@@ -44,11 +45,15 @@ const nav: { id: SettingsSection; label: string; icon: Icon }[] = [
 export function SettingsDialog() {
   const { settings } = useSearch({ from: "/_app" });
   const navigate = useNavigate();
-  const go = (s?: SettingsSection) =>
-    navigate({ to: ".", search: (p) => ({ ...p, settings: s }), replace: !!settings && !!s });
+  const go = (s: SettingsSection) =>
+    navigate({ to: ".", search: (p) => ({ ...p, settings: s }), replace: !!settings });
+  // Closing steps back, so the system back button doesn't open settings again.
+  const close = useBack(() =>
+    navigate({ to: ".", search: (p) => ({ ...p, settings: undefined }), replace: true }),
+  );
 
   return (
-    <Dialog.Root open={!!settings} onOpenChange={(open) => !open && go(undefined)}>
+    <Dialog.Root open={!!settings} onOpenChange={(open) => !open && close()}>
       <Dialog.Portal>
         <Dialog.Backdrop className="fixed inset-0 z-40 bg-(--scrim) transition-opacity duration-300 data-ending-style:opacity-0 data-ending-style:duration-150 data-starting-style:opacity-0" />
         <Dialog.Popup
@@ -66,7 +71,7 @@ export function SettingsDialog() {
             <Dialog.Title className="mx-2.5 mb-2 hidden text-[13px] font-medium tracking-[0.25px] text-ash sm:block">
               Settings
             </Dialog.Title>
-            {nav.map(({ id, label, icon: I }) => (
+            {settingsNav.map(({ id, label, icon: I }) => (
               <button
                 key={id}
                 type="button"

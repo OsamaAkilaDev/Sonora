@@ -236,6 +236,57 @@
   transform: translateY(calc(var(--toast-swipe-movement-y) + 120%));
 }
 
+/* Phones: the same stack hung from the top, so every vertical offset is mirrored. */
+@media (width < 48rem) {
+  .toast {
+    top: 0;
+    bottom: auto;
+    transform-origin: top center;
+    --offset-y: calc(
+      var(--toast-offset-y) +
+      (var(--toast-index) * var(--gap)) +
+      var(--toast-swipe-movement-y)
+    );
+    transform: translateX(var(--toast-swipe-movement-x))
+      translateY(
+        calc(
+          var(--toast-swipe-movement-y) +
+          (var(--toast-index) * var(--peek)) +
+          (var(--shrink) * var(--height))
+        )
+      )
+      scale(var(--scale));
+  }
+  .toast::after {
+    top: auto;
+    bottom: 100%;
+  }
+  .toast[data-expanded] {
+    transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+  }
+  .toast[data-starting-style],
+  .toast[data-ending-style]:not([data-swipe-direction]) {
+    transform: translateY(-120%);
+  }
+  .toast[data-ending-style][data-swipe-direction="up"] {
+    transform: translateY(calc(var(--toast-swipe-movement-y) - 120%));
+  }
+}
+
+/* Phones: under 16px, iOS zooms the page when a field takes focus. */
+@media (pointer: coarse) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+/* Keyboard up: the nav bar would ride on top of it, so it steps aside. */
+body:has(input:not([type="checkbox"], [type="radio"]):focus, textarea:focus) .bottom-nav {
+  display: none;
+}
+
 /* Loading placeholder: continuous shimmer (linear), static under reduced motion. */
 @utility skeleton {
   display: block;

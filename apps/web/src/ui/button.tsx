@@ -11,9 +11,9 @@ const variants = {
 } as const;
 
 const sizes = {
-  sm: "h-7 px-3 text-[13px]",
-  md: "h-[34px] px-3.5 text-sm",
-  lg: "h-10 px-4 text-[14.5px]",
+  sm: "h-7 px-3 text-[13px] pointer-coarse:h-11",
+  md: "h-[34px] px-3.5 text-sm pointer-coarse:h-11",
+  lg: "h-10 px-4 text-[14.5px] pointer-coarse:h-11",
 };
 
 type Props = ButtonHTMLAttributes<HTMLButtonElement> & {
@@ -63,7 +63,7 @@ export function IconButton({ label, pressed, className, children, ...rest }: Ico
       title={label}
       {...rest}
       className={cx(
-        "inline-grid size-8 shrink-0 place-items-center rounded-full text-lg text-slate",
+        "inline-grid size-8 shrink-0 place-items-center rounded-full text-lg text-slate pointer-coarse:size-11",
         "transition-[background-color,color,scale] duration-150 ease-out hover:bg-hover hover:text-ink",
         "enabled:active:scale-[0.96] aria-pressed:bg-inset aria-pressed:text-ink disabled:opacity-40",
         className,
