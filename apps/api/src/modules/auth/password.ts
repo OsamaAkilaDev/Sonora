@@ -62,7 +62,9 @@ export function needsRehash(stored: string, profile: Profile) {
 /** Verified against when the email is unknown, so timing doesn't reveal which emails exist. */
 const dummies = new Map<Profile, Promise<string>>();
 export function dummyHash(profile: Profile) {
-  let d = dummies.get(profile);
-  if (!d) dummies.set(profile, (d = hashPassword("sonora-dummy-password", profile)));
+  const cached = dummies.get(profile);
+  if (cached) return cached;
+  const d = hashPassword("sonora-dummy-password", profile);
+  dummies.set(profile, d);
   return d;
 }
