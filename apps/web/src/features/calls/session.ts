@@ -85,9 +85,15 @@ class Session {
       if (!mic) return;
       mic.enabled = !muted;
       this.patchMedia({ muted });
+      this.cue(muted ? "mute" : "unmute");
     });
 
-  toggleCamera = () => this.exclusive(() => this.setCamera(!this.cam));
+  toggleCamera = () =>
+    this.exclusive(async () => {
+      const had = !!this.cam;
+      await this.setCamera(!had);
+      if (!!this.cam !== had) this.cue(had ? "off" : "on");
+    });
 
   toggleScreen = () =>
     this.exclusive(async () => {
@@ -104,10 +110,12 @@ class Session {
       track.contentHint = "detail"; // keep text sharp over smooth motion
       track.onended = () => this.stopScreen(); // the browser's own "Stop sharing" button
       this.screen = track;
+      this.cue("on");
       await this.sendVideo("screen");
     });
 
   leave() {
+    this.cue("hangup");
     this.send({ type: "leave" });
     this.close();
   }
@@ -160,6 +168,7 @@ class Session {
   }
 
   private stopScreen() {
+    if (this.screen) this.cue("off");
     this.screen?.stop();
     this.screen = null;
     void this.sendVideo("screen");
@@ -277,7 +286,7 @@ class Session {
       case "end": {
         const title = endMessages[event.reason];
         if (title) notify(`call:${event.reason}`, { title });
-        this.cue("leave");
+        this.cue("hangup");
         this.close();
         break;
       }

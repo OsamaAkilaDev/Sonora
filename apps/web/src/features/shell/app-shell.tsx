@@ -8,6 +8,7 @@ import { Logo } from "../../ui/logo";
 import { meQuery } from "../auth/queries";
 import { CallDock, useCallElsewhere } from "../calls/call-dock";
 import { CallLayer } from "../calls/call-layer";
+import { usePush } from "../notifications/push";
 import { useRealtime } from "../realtime/use-realtime";
 import { SettingsDialog } from "../settings/settings-dialog";
 import { Switcher } from "../switcher/switcher";
@@ -21,6 +22,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
   const me = useQuery(meQuery).data;
   useRealtime(me?.id ?? "");
+  usePush();
   const call = useCallElsewhere();
   // Phones show one pane at a time: the list, or the open chat.
   const inChat = useRouterState({ select: (s) => s.location.pathname.startsWith("/c/") });

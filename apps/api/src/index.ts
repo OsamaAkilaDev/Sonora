@@ -7,6 +7,7 @@ import { callsRoutes } from "./modules/calls/calls.routes";
 import { chatsRoutes } from "./modules/chats/chats.routes";
 import { filesRoutes } from "./modules/files/files.routes";
 import { friendsRoutes } from "./modules/friends/friends.routes";
+import { pushRoutes } from "./modules/push/push.routes";
 import { realtimeRoutes } from "./modules/realtime/realtime.routes";
 import { searchRoutes } from "./modules/search/search.routes";
 
@@ -22,6 +23,7 @@ const app = new Hono<AppEnv>()
   .route("/friends", friendsRoutes)
   .route("/chats", chatsRoutes)
   .route("/calls", callsRoutes)
+  .route("/push", pushRoutes)
   .route("/files", filesRoutes)
   .route("/search", searchRoutes)
   .route("/ws", realtimeRoutes);

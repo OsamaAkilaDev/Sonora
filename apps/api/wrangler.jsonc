@@ -9,10 +9,12 @@
   "vars": {
     "PASSWORD_PROFILE": "free",
     "B2_ENDPOINT": "s3.eu-central-003.backblazeb2.com",
-    "B2_BUCKET": "sonora-files"
+    "B2_BUCKET": "sonora-files",
+    // Web Push identity; the private half is the VAPID_PRIVATE_KEY secret.
+    "VAPID_PUBLIC_KEY": "BKTxJwtDicKYlXKin4z3Yh-NtFD4N9Xaj6TMBzHAd_u4UyV2phoiDq5Hn03UYIpIcRUMvA9ocHMxurK1MKXQ6QQ"
   },
   // Set with `wrangler secret put`; locally in apps/api/.dev.vars.
-  "secrets": { "required": ["B2_KEY_ID", "B2_APP_KEY"] },
+  "secrets": { "required": ["B2_KEY_ID", "B2_APP_KEY", "VAPID_PRIVATE_KEY"] },
   "assets": {
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*", "/ws"]

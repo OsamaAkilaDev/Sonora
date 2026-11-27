@@ -141,6 +141,7 @@ export function Composer({
         abort: new AbortController(),
       };
       setPending((p) => [...p, item]);
+      play("pop");
       const patch = (u: Partial<Pending>) =>
         setPending((p) => p.map((x) => (x.key === item.key ? { ...x, ...u } : x)));
       uploadFile(chat.id, file, (progress) => patch({ progress }), item.abort.signal)
@@ -150,6 +151,7 @@ export function Composer({
   }
 
   function removePending(key: string) {
+    play("unpop");
     const item = pending.find((x) => x.key === key);
     item?.abort.abort();
     if (item?.preview) URL.revokeObjectURL(item.preview);

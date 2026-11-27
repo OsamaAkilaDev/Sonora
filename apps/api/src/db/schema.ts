@@ -158,3 +158,21 @@ export type Session = typeof sessions.$inferSelect;
 export type Chat = typeof chats.$inferSelect;
 export type MessageRow = typeof messages.$inferSelect;
 export type AttachmentRow = typeof attachments.$inferSelect;
+
+/** One per browser that asked to be rung. Signing that session out removes it. */
+export const pushSubscriptions = sqliteTable(
+  "push_subscriptions",
+  {
+    endpoint: text("endpoint").primaryKey(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    sessionId: text("session_id")
+      .notNull()
+      .references(() => sessions.id, { onDelete: "cascade" }),
+    p256dh: text("p256dh").notNull(),
+    auth: text("auth").notNull(),
+    createdAt: ms("created_at").notNull(),
+  },
+  (t) => [index("push_user_idx").on(t.userId)],
+);

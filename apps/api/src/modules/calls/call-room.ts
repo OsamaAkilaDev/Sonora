@@ -4,11 +4,14 @@ import {
   type CallInfo,
   type CallPeer,
   MAX_CALL_PEERS,
+  type PushPayload,
   RING_MS,
   type RoomEvent,
   type RoomMessage,
 } from "@sonora/shared";
 import { ulid } from "ulid";
+import { createDb } from "../../core/db";
+import { sendPush } from "../push/push.service";
 import { publish } from "../realtime/publish";
 
 /** Set by the calls route after it has checked the session and chat membership. */
@@ -17,7 +20,11 @@ export type Join = {
   userId: string;
   chatId: string;
   kind: "dm" | "group";
+  groupName: string | null;
   memberIds: string[];
+  /** The caller's, for notifications. */
+  username: string;
+  origin: string;
   video: boolean;
   /** Only join this exact call (the "Join" button and reconnects); never start a new one. */
   callId: string | null;
@@ -26,6 +33,11 @@ export type Join = {
 type Room = Omit<CallInfo, "userIds"> & {
   kind: Join["kind"];
   memberIds: string[];
+  groupName: string | null;
+  callerName: string;
+  origin: string;
+  /** Group members who dismissed the ringing: stop ringing their devices. */
+  declined: string[];
   answered: boolean;
   /** A DM with only one person in it ends after this. */
   deadline: number;
@@ -36,6 +48,8 @@ type Seat = CallPeer & { gone?: boolean };
 
 /** How often a running call checks that someone is still connected. */
 const SWEEP_MS = 60_000;
+/** While ringing, each member's devices are notified again this often. */
+const REPEAT_MS = 6_000;
 
 /**
  * One per chat. The open sockets are the participants, so a closed tab leaves the call
@@ -50,7 +64,7 @@ export class CallRoom extends DurableObject<Env> {
   override async fetch(req: Request) {
     const header = req.headers.get(JOIN_HEADER);
     if (!header) return new Response("Forbidden", { status: 403 });
-    const join: Join = JSON.parse(header);
+    const join: Join = JSON.parse(decodeURIComponent(header));
     const { 0: client, 1: server } = new WebSocketPair();
     this.ctx.acceptWebSocket(server);
     const upgraded = new Response(null, { status: 101, webSocket: client });
@@ -69,11 +83,16 @@ export class CallRoom extends DurableObject<Env> {
     }
 
     const now = Date.now();
+    const started = !room;
     room ??= {
       chatId: join.chatId,
       callId: ulid(),
       kind: join.kind,
       memberIds: join.memberIds,
+      groupName: join.groupName,
+      callerName: join.username,
+      origin: join.origin,
+      declined: [],
       video: join.video,
       startedBy: join.userId,
       startedAt: now,
@@ -98,7 +117,10 @@ export class CallRoom extends DurableObject<Env> {
     server.serializeAttachment(me);
     if (others.length) room.answered = true;
     await this.ctx.storage.put("room", room);
-    await this.ctx.storage.setAlarm(room.answered ? now + SWEEP_MS : room.deadline);
+    await this.schedule(room);
+    // The first answer stops the ringing on that person's other devices.
+    if (others.length && join.userId !== room.startedBy)
+      this.notify(room, "answered", [join.userId]);
 
     this.send(server, {
       type: "welcome",
@@ -108,16 +130,19 @@ export class CallRoom extends DurableObject<Env> {
     });
     this.broadcast({ type: "peer.join", peer: me }, server);
     await this.announce(room);
+    if (started) this.notify(room, "ring", this.ringing(room));
     return upgraded;
   }
 
-  /** RPC: a ringing DM call is declined by the other person. */
+  /** RPC: someone dismisses the ringing. In a one-to-one call that ends it. */
   async decline(userId: string, callId: string) {
     const room = await this.ctx.storage.get<Room>("room");
-    // In a group, declining only silences your own ringing (handled by the client).
-    if (room?.callId !== callId || room.kind !== "dm" || room.answered) return;
-    if (userId !== room.startedBy && room.memberIds.includes(userId))
-      await this.end(room, "declined");
+    if (room?.callId !== callId || room.answered) return;
+    if (userId === room.startedBy || !room.memberIds.includes(userId)) return;
+    room.declined.push(userId);
+    this.notify(room, "answered", [userId]); // stop their other devices ringing
+    if (room.kind === "dm") return this.end(room, "declined");
+    await this.ctx.storage.put("room", room);
   }
 
   override async webSocketMessage(ws: WebSocket, raw: string | ArrayBuffer) {
@@ -157,10 +182,15 @@ export class CallRoom extends DurableObject<Env> {
     const alone = room.kind === "dm" && count < 2;
     if (count === 0 || (alone && now >= room.deadline))
       return this.end(room, room.answered ? "ended" : "no_answer");
-    const ringingOver = room.ringingUntil && now >= room.ringingUntil;
-    if (ringingOver) room.ringingUntil = 0;
-    await this.ctx.storage.put("room", room);
-    await this.ctx.storage.setAlarm(alone ? room.deadline : now + SWEEP_MS);
+    const ringingOver = !!room.ringingUntil && now >= room.ringingUntil;
+    if (ringingOver) {
+      if (!room.answered) this.notify(room, "missed", this.ringing(room));
+      room.ringingUntil = 0;
+      await this.ctx.storage.put("room", room);
+    } else if (this.isRinging(room)) {
+      this.notify(room, "ring", this.ringing(room));
+    }
+    await this.schedule(room);
     if (ringingOver) await this.announce(room);
   }
 
@@ -178,12 +208,50 @@ export class CallRoom extends DurableObject<Env> {
     if (room.kind === "dm") {
       room.deadline = Date.now() + RING_MS;
       await this.ctx.storage.put("room", room);
-      await this.ctx.storage.setAlarm(room.deadline);
+      await this.schedule(room);
     }
     await this.announce(room);
   }
 
+  private isRinging(room: Room) {
+    return !room.answered && Date.now() < room.ringingUntil;
+  }
+
+  /** Who is still being rung: not the caller, not in the call, not dismissed. */
+  private ringing(room: Room) {
+    const inCall = new Set(this.seats().map((s) => s.seat.userId));
+    return room.memberIds.filter(
+      (id) => id !== room.startedBy && !inCall.has(id) && !room.declined.includes(id),
+    );
+  }
+
+  /** One alarm covers it all: the next ring, the end of ringing, or the next sweep. */
+  private schedule(room: Room) {
+    const now = Date.now();
+    if (this.isRinging(room))
+      return this.ctx.storage.setAlarm(Math.min(now + REPEAT_MS, room.ringingUntil));
+    const alone = room.kind === "dm" && this.seats().length < 2;
+    return this.ctx.storage.setAlarm(alone ? room.deadline : now + SWEEP_MS);
+  }
+
+  /** Reaches devices where Sonora is closed or asleep. Never holds up the call. */
+  private notify(room: Room, type: Exclude<PushPayload["type"], "test">, userIds: string[]) {
+    const { chatId, callId, video, callerName: from, groupName: group, origin } = room;
+    this.ctx.waitUntil(
+      sendPush(
+        this.env,
+        createDb(this.env.DB),
+        userIds,
+        { type, chatId, callId, from, group, video },
+        // A ring is worthless late; "missed" is still worth delivering tomorrow.
+        { ttl: type === "missed" ? 86_400 : 30, urgency: "high", topic: callId, origin },
+      ).catch((e) => console.warn("push failed", e)),
+    );
+  }
+
   private async end(room: Room, reason: CallEndReason) {
+    // Still ringing when it ended: whoever didn't dismiss it missed a call.
+    if (!room.answered && room.ringingUntil) this.notify(room, "missed", this.ringing(room));
     for (const { ws } of this.seats()) this.drop(ws, reason);
     await this.ctx.storage.deleteAlarm();
     await this.ctx.storage.deleteAll();

@@ -6,6 +6,7 @@ import { IconButton } from "../../ui/button";
 import { CallDock, useCallElsewhere } from "../calls/call-dock";
 import { ChatList } from "../chats/chat-list";
 import { NewGroupDialog } from "../chats/new-group-dialog";
+import { NotifyPrompt } from "../notifications/prompt";
 import { FriendList } from "../social/friend-list";
 import { socialQuery } from "../social/queries";
 import { RequestList } from "../social/request-list";
@@ -79,6 +80,7 @@ export function Rail() {
         {tab === "friends" && <FriendList />}
         {tab === "requests" && <RequestList />}
       </div>
+      <NotifyPrompt />
       {call.desktop && (
         <div className="max-md:hidden">
           <CallDock variant="card" />

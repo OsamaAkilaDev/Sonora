@@ -151,7 +151,8 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
   - The app shell is precached, so it opens instantly and works offline. Offline it shows cached chats with an "Offline · reconnecting" banner, and messages sent while offline queue and go out when you're back.
   - Updates prompt "New version ready · Reload", so the app never updates silently in the middle of a call.
   - The API and socket are never cached; only static assets are.
-- **Push notifications (Web Push with VAPID, sent from the Worker)** for DMs, mentions and incoming calls when the app is closed. Installed iOS PWAs support this on iOS 16.4+. They're tapped to open the right chat or call. → phase 5.
+- **Call notifications (Web Push, VAPID, sent from `CallRoom`):** every signed-in browser that allowed them is rung, repeating every 6s while the call rings, with Open and Decline actions; then "Missed call" or silently replaced. Subscriptions belong to a session, so signing out stops them; the server only posts to the known browser push services. `public/push-sw.js` is loaded into the Workbox service worker. Secret: `VAPID_PRIVATE_KEY`. Limits: a closed app can only use the system notification sound; iOS needs the Home Screen app (16.4+); silent/focus modes still apply. Message notifications → phase 5.
+- **Sounds:** one synthesized kit (`lib/sound.ts`), weighted by action. Ringtone and ringback are rendered once and looped by `<audio>`, so hidden tabs keep ringing; ringtone has its own switch.
 
 ## 10. Quality & security
 
@@ -165,7 +166,7 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 2. Friends, DMs and groups, messages, the realtime socket, presence and typing.
 3. Replies, reactions, edits, attachments, search, unread counts, drafts and the Ctrl+K switcher.
 4. Voice and video calls, screen share, devices and the mini call bar.
-5. Settings, a new background for the sign-in screens, email verification and reset, Web Push, the offline message queue, deploy, and a polish pass.
+5. Settings, a new background for the sign-in screens, email verification and reset, message notifications, the offline message queue, deploy, and a polish pass.
 
 ## 12. Open decisions
 

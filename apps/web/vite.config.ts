@@ -33,6 +33,7 @@ export default defineConfig({
         navigateFallback: "/index.html",
         navigateFallbackDenylist: [/^\/api\//, /^\/ws/, /^\/cdn-cgi\//],
         cleanupOutdatedCaches: true,
+        importScripts: ["push-sw.js"], // call notifications
       },
     }).map((p) => ({ ...p, applyToEnvironment: (env: { name: string }) => env.name === "client" })),
   ],

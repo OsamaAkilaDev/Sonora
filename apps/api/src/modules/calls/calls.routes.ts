@@ -22,11 +22,14 @@ export const callsRoutes = new Hono<AppEnv>()
       ...(await callContext(c.var.db, chatId, c.var.user.id)),
       chatId,
       userId: c.var.user.id,
+      username: c.var.user.username,
+      origin: new URL(c.req.url).origin,
       video: c.req.query("video") === "1",
       callId: c.req.query("callId") ?? null,
     };
     const headers = new Headers(c.req.raw.headers);
-    headers.set(JOIN_HEADER, JSON.stringify(join)); // trusted: set only here, after the checks
+    // Trusted: set only here, after the checks. Encoded because group names may be non-ASCII.
+    headers.set(JOIN_HEADER, encodeURIComponent(JSON.stringify(join)));
     return room(c.env, chatId).fetch(new Request(c.req.raw, { headers }));
   })
   .post("/:chatId/decline", sameOrigin, body(declineCallInput), async (c) => {

@@ -14,6 +14,7 @@
     "db:migrate:remote": "wrangler d1 migrations apply sonora --remote"
   },
   "dependencies": {
+    "@block65/webcrypto-web-push": "2.0.0",
     "@hono/zod-validator": "^0.9.1",
     "@sonora/shared": "workspace:*",
     "aws4fetch": "1.0.20",

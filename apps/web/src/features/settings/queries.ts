@@ -21,7 +21,7 @@ function useOptimisticRevoke<V>(
       await qc.cancelQueries(sessionsQuery);
       const prev = qc.getQueryData(sessionsQuery.queryKey);
       qc.setQueryData(sessionsQuery.queryKey, (list) => list?.filter((s) => keep(s, v)));
-      play("tick");
+      play("delete");
       return { prev };
     },
     onError: (_e, _v, ctx) => {

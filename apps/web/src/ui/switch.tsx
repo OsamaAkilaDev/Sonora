@@ -1,4 +1,5 @@
 import { Switch as S } from "@base-ui/react/switch";
+import { play } from "../lib/sound";
 
 type Props = { checked: boolean; onChange: (v: boolean) => void; label: string };
 
@@ -6,7 +7,10 @@ export function Switch({ checked, onChange, label }: Props) {
   return (
     <S.Root
       checked={checked}
-      onCheckedChange={onChange}
+      onCheckedChange={(v) => {
+        onChange(v);
+        play(v ? "on" : "off"); // after the change, so turning sounds off stays quiet
+      }}
       aria-label={label}
       className="relative h-[22px] w-[38px] shrink-0 rounded-full bg-line transition-colors duration-200 data-checked:bg-ink"
     >

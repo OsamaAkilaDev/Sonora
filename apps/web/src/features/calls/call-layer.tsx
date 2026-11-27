@@ -6,11 +6,12 @@ import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useEffect, useState } from "react";
 import { api, unwrap } from "../../lib/api";
-import { play, type SoundName } from "../../lib/sound";
+import { play, startLoop } from "../../lib/sound";
 import { Avatar } from "../../ui/avatar";
 import { meQuery } from "../auth/queries";
 import { chatTitle, GroupAvatar, peerOf } from "../chats/chat-list";
 import { chatsQuery } from "../chats/queries";
+import { ringIncoming } from "../notifications/alert";
 import { ControlButton } from "./controls";
 import { RemoteAudio } from "./media";
 import { joinCall, leaveCall } from "./session";
@@ -50,16 +51,6 @@ function Announcer() {
   );
 }
 
-function useRepeat(sound: SoundName, active: boolean, every: number) {
-  useEffect(() => {
-    if (!active) return;
-    const ring = () => play(sound, { background: true });
-    ring();
-    const t = setInterval(ring, every);
-    return () => clearInterval(t);
-  }, [sound, active, every]);
-}
-
 /** Re-renders when the next ringing call times out. */
 function useNow(deadline: number) {
   const [now, setNow] = useState(Date.now);
@@ -77,7 +68,8 @@ function Ringback({ meId }: { meId: string }) {
   const call = useCalls((s) => (chatId ? s.byChat[chatId] : undefined));
   const until = call?.startedBy === meId ? call.ringsUntil : 0;
   const now = useNow(until);
-  useRepeat("ringback", alone && until > now, 3000);
+  const ringing = alone && until > now;
+  useEffect(() => (ringing ? startLoop("ringback") : undefined), [ringing]);
   return null;
 }
 
@@ -100,7 +92,13 @@ function Incoming({ me }: { me: Me }) {
   );
   const call = candidates.find((c) => c.ringsUntil > now);
   const chat = chats?.find((c) => c.id === call?.chatId);
-  useRepeat("ring", !!(call && chat), 2400);
+  const callId = call?.callId;
+  const caller = chat ? chatTitle(chat, me.id) : "";
+  const body = call?.video ? "Incoming video call" : "Incoming voice call";
+  useEffect(() => {
+    if (!callId || !caller) return;
+    return ringIncoming({ callId, title: caller, body });
+  }, [callId, caller, body]);
 
   const answer = (video: boolean) => {
     if (!call) return;
@@ -111,6 +109,7 @@ function Incoming({ me }: { me: Me }) {
   const decline = () => {
     if (!call) return;
     calls.dismiss(call.callId);
+    play("hangup");
     // If this fails the caller simply gets "No answer" when ringing times out.
     void unwrap(
       api.calls[":chatId"].decline.$post({

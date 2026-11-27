@@ -1,7 +1,7 @@
 import type { FriendRequest, PublicUser } from "@sonora/shared";
 import { queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
 import { api, unwrap } from "../../lib/api";
-import { play } from "../../lib/sound";
+import { play, type SoundName } from "../../lib/sound";
 import { notify } from "../../ui/toast";
 
 export type Social = { friends: PublicUser[]; requests: FriendRequest[] };
@@ -36,6 +36,7 @@ export const social = {
 function useSocialMutation<V, R>(
   request: (v: V) => Promise<R>,
   optimistic: (s: Social, v: V) => Social,
+  sound: SoundName,
   done?: (s: Social, r: R) => Social,
 ) {
   const qc = useQueryClient();
@@ -43,6 +44,7 @@ function useSocialMutation<V, R>(
   return useMutation({
     mutationFn: request,
     onMutate: async (v: V) => {
+      play(sound);
       await qc.cancelQueries({ queryKey: key });
       const prev = qc.getQueryData(key);
       if (prev) qc.setQueryData(key, optimistic(prev, v));
@@ -73,7 +75,7 @@ export function useSendRequest() {
           { title: `You and ${r.friend.username} are friends`, description: "Say hi." },
           "success",
         );
-      else play("success");
+      else play("add");
     },
     onError: () => play("error"),
   });
@@ -86,6 +88,7 @@ export const useAcceptRequest = () =>
       const req = s.requests.find((r) => r.user.id === userId);
       return req ? social.addFriend(s, req.user) : s;
     },
+    "success",
     (s, r) => social.addFriend(s, r.friend),
   );
 
@@ -93,10 +96,12 @@ export const useDeclineRequest = () =>
   useSocialMutation(
     (userId: string) => unwrap(api.friends.requests[":userId"].$delete({ param: { userId } })),
     social.remove,
+    "remove",
   );
 
 export const useRemoveFriend = () =>
   useSocialMutation(
     (userId: string) => unwrap(api.friends[":userId"].$delete({ param: { userId } })),
     social.remove,
+    "delete",
   );

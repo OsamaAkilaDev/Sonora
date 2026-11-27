@@ -1,5 +1,6 @@
 import { Dialog } from "@base-ui/react/dialog";
 import {
+  Bell,
   Desktop,
   DeviceMobile,
   Headphones,
@@ -13,22 +14,29 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate, useSearch } from "@tanstack/react-router";
 import { cx } from "../../lib/cx";
 import { describeDevice, timeAgo } from "../../lib/format";
-import { play, setSoundsEnabled, useSoundsEnabled } from "../../lib/sound";
+import { play } from "../../lib/sound";
 import { setThemePref, type ThemePref, useThemePref } from "../../lib/theme";
 import { Button } from "../../ui/button";
 import { Segmented } from "../../ui/segmented";
-import { Switch } from "../../ui/switch";
 import { meQuery, useLogout } from "../auth/queries";
 import { DevicesCards } from "./devices-section";
+import { NotificationsCards } from "./notifications-section";
 import { sessionsQuery, useRevokeOthers, useRevokeSession } from "./queries";
 
-export const settingsSections = ["account", "sessions", "devices", "appearance"] as const;
+export const settingsSections = [
+  "account",
+  "sessions",
+  "devices",
+  "notifications",
+  "appearance",
+] as const;
 export type SettingsSection = (typeof settingsSections)[number];
 
 const nav: { id: SettingsSection; label: string; icon: Icon }[] = [
   { id: "account", label: "Account", icon: ShieldCheck },
   { id: "sessions", label: "Sessions", icon: Desktop },
   { id: "devices", label: "Voice & video", icon: Headphones },
+  { id: "notifications", label: "Sounds & alerts", icon: Bell },
   { id: "appearance", label: "Appearance", icon: PaintBrush },
 ];
 
@@ -63,6 +71,8 @@ export function SettingsDialog() {
                 key={id}
                 type="button"
                 aria-current={settings === id || undefined}
+                // Phones scroll the tabs sideways: keep the open one in view.
+                ref={settings === id ? revealTab : undefined}
                 onClick={() => go(id)}
                 className={cx(
                   "flex h-9 shrink-0 items-center gap-2.5 rounded-full px-3 text-sm font-medium transition-colors duration-150",
@@ -94,6 +104,12 @@ export function SettingsDialog() {
                 <DevicesCards />
               </>
             )}
+            {settings === "notifications" && (
+              <>
+                <Heading title="Sounds & alerts" lead="How Sonora gets your attention." />
+                <NotificationsCards />
+              </>
+            )}
             {settings === "appearance" && <Appearance />}
           </div>
         </Dialog.Popup>
@@ -101,6 +117,9 @@ export function SettingsDialog() {
     </Dialog.Root>
   );
 }
+
+const revealTab = (el: HTMLButtonElement | null) =>
+  el?.scrollIntoView({ inline: "center", block: "nearest" });
 
 function Heading({ title, lead }: { title: string; lead: string }) {
   return (
@@ -226,7 +245,6 @@ function Sessions() {
 
 function Appearance() {
   const pref = useThemePref();
-  const sounds = useSoundsEnabled();
   const pick = (p: ThemePref) => {
     if (p !== pref) play("theme");
     setThemePref(p);
@@ -251,15 +269,6 @@ function Appearance() {
               { value: "dark", label: "Dark" },
             ]}
           />
-        </div>
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <p className="text-sm font-medium">Sounds</p>
-            <p className="text-[13px] text-slate">
-              Quiet cues when messages arrive, send, or something needs your attention.
-            </p>
-          </div>
-          <Switch label="Sounds" checked={sounds} onChange={setSoundsEnabled} />
         </div>
       </div>
     </>

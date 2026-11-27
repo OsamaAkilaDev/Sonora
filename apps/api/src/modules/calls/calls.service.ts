@@ -7,10 +7,14 @@ import { requireMember } from "../chats/chats.service";
 export async function callContext(db: Db, chatId: string, userId: string) {
   await requireMember(db, chatId, userId);
   const rows = await db
-    .select({ userId: chatMembers.userId, kind: chats.kind })
+    .select({ userId: chatMembers.userId, kind: chats.kind, name: chats.name })
     .from(chatMembers)
     .innerJoin(chats, eq(chats.id, chatMembers.chatId))
     .where(eq(chatMembers.chatId, chatId))
     .all();
-  return { kind: rows[0]?.kind ?? "group", memberIds: rows.map((r) => r.userId) };
+  return {
+    kind: rows[0]?.kind ?? "group",
+    groupName: rows[0]?.name ?? null,
+    memberIds: rows.map((r) => r.userId),
+  };
 }

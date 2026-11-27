@@ -1,4 +1,4 @@
-import { SELF } from "cloudflare:test";
+import { env, SELF } from "cloudflare:test";
 import type { RoomEvent, ServerEvent } from "@sonora/shared";
 import { expect, it } from "vitest";
 
@@ -43,6 +43,58 @@ async function connect<E extends { type: string }>(path: string, cookie: string)
   };
   return { status: res.status, ws: ws as WebSocket, next };
 }
+
+/** What a browser's PushManager would hand us: real keys, so encryption actually runs. */
+async function subscription(path: string) {
+  const pair = (await crypto.subtle.generateKey({ name: "ECDH", namedCurve: "P-256" }, true, [
+    "deriveBits",
+  ])) as CryptoKeyPair;
+  const b64 = (b: ArrayBuffer | Uint8Array) =>
+    btoa(String.fromCharCode(...new Uint8Array(b)))
+      .replace(/\+/g, "-")
+      .replace(/\//g, "_")
+      .replace(/=+$/, "");
+  const raw = (await crypto.subtle.exportKey("raw", pair.publicKey)) as ArrayBuffer;
+  return {
+    endpoint: `https://fcm.googleapis.com/fcm/send/${path}`,
+    keys: { p256dh: b64(raw), auth: b64(crypto.getRandomValues(new Uint8Array(16))) },
+  };
+}
+
+const endpoints = async () =>
+  (
+    await env.DB.prepare("select endpoint from push_subscriptions order by endpoint").all()
+  ).results.map((r) => (r.endpoint as string).split("/").pop());
+
+it("rings the callee's devices and forgets dead ones", async () => {
+  const [dana, sami] = await Promise.all([signup("dana"), signup("sami")]);
+  await post("/friends/requests", dana.cookie, { username: "sami" });
+  await post(`/friends/requests/${dana.id}/accept`, sami.cookie, {});
+  const { chat } = await (await post("/chats/dm", dana.cookie, { userId: sami.id })).json<{
+    chat: { id: string };
+  }>();
+  const save = (data: unknown) =>
+    SELF.fetch(`${ORIGIN}/api/push/subscription`, {
+      method: "PUT",
+      body: JSON.stringify(data),
+      headers: { "content-type": "application/json", origin: ORIGIN, cookie: sami.cookie },
+    });
+
+  // only real push services: the server must never post to an arbitrary URL
+  const evil = { ...(await subscription("x")), endpoint: "https://evil.example/hook" };
+  expect((await save(evil)).status).toBe(422);
+  expect((await save(await subscription("live"))).status).toBe(200);
+  expect((await save(await subscription("gone"))).status).toBe(200);
+
+  const call = await connect<RoomEvent>(`/calls/${chat.id}/ws`, dana.cookie);
+  await call.next("welcome");
+  await expect.poll(endpoints).toEqual(["live"]);
+
+  // signing out stops the ringing on that browser
+  await post("/auth/logout", sami.cookie, {});
+  expect(await endpoints()).toEqual([]);
+  call.ws.send(JSON.stringify({ type: "leave" }));
+});
 
 it("joins, relays signals, hangs up and declines", async () => {
   const [salma, hadi, rami] = await Promise.all([signup("salma"), signup("hadi"), signup("rami")]);

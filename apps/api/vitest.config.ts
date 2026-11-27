@@ -27,15 +27,43 @@ function fakeS3() {
   };
 }
 
+/** Accepts a well-formed Web Push request; endpoints containing "gone" have unsubscribed. */
+function fakePush(req: Request) {
+  const ok =
+    req.headers.get("authorization")?.startsWith("vapid t=") &&
+    req.headers.get("content-encoding") === "aes128gcm";
+  return new Response(null, { status: !ok ? 400 : req.url.includes("gone") ? 410 : 201 });
+}
+
+/** A throwaway signing key pair, so tests never use the real one. */
+async function vapidKeys() {
+  const pair = await crypto.subtle.generateKey({ name: "ECDSA", namedCurve: "P-256" }, true, [
+    "sign",
+    "verify",
+  ]);
+  const raw = await crypto.subtle.exportKey("raw", pair.publicKey);
+  return {
+    VAPID_PUBLIC_KEY: Buffer.from(raw).toString("base64url"),
+    VAPID_PRIVATE_KEY: (await crypto.subtle.exportKey("jwk", pair.privateKey)).d as string,
+  };
+}
+
 export default defineConfig(async () => {
   const migrations = await readD1Migrations("./migrations");
+  const s3 = fakeS3();
   return {
     plugins: [
       cloudflareTest({
         wrangler: { configPath: "./wrangler.jsonc" },
         miniflare: {
-          bindings: { TEST_MIGRATIONS: migrations, B2_KEY_ID: "test", B2_APP_KEY: "test" },
-          outboundService: fakeS3(),
+          bindings: {
+            TEST_MIGRATIONS: migrations,
+            B2_KEY_ID: "test",
+            B2_APP_KEY: "test",
+            ...(await vapidKeys()),
+          },
+          outboundService: (req: Request) =>
+            new URL(req.url).hostname === "fcm.googleapis.com" ? fakePush(req) : s3(req),
         },
       }),
     ],

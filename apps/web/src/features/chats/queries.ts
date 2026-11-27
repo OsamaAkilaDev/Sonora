@@ -8,7 +8,7 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { api, unwrap } from "../../lib/api";
-import { play } from "../../lib/sound";
+import { play, type SoundName } from "../../lib/sound";
 
 /** A message as the UI holds it: server messages plus local optimistic ones. */
 export type LocalMessage = Message & { local?: "sending" | "failed" };
@@ -163,12 +163,15 @@ function useMessageMutation<V extends { id: string }>(
   chatId: string,
   request: (v: V) => Promise<{ message: Message }>,
   patch: (m: LocalMessage, v: V) => LocalMessage,
+  /** Heard as the change appears. `prev` is the message before it. */
+  sound: (prev: LocalMessage | undefined, v: V) => SoundName,
 ) {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: request,
     onMutate: (v: V) => {
       const prev = cache.getMessage(qc, chatId, v.id);
+      play(sound(prev, v));
       if (prev) cache.updateMessage(qc, patch(prev, v));
       return { prev };
     },
@@ -191,6 +194,7 @@ export const useEditMessage = (chatId: string) =>
         }),
       ),
     (m, { body }) => ({ ...m, body, editedAt: Date.now() }),
+    () => "tick",
   );
 
 export const useDeleteMessage = (chatId: string) =>
@@ -201,6 +205,7 @@ export const useDeleteMessage = (chatId: string) =>
         api.chats[":id"].messages[":messageId"].$delete({ param: { id: chatId, messageId: id } }),
       ),
     (m) => ({ ...m, body: "", attachments: [], reactions: [], deletedAt: Date.now() }),
+    () => "delete",
   );
 
 /** Toggles my reaction; the optimistic patch mirrors the server's rule. */
@@ -215,6 +220,8 @@ export const useToggleReaction = (chatId: string, meId: string) =>
         }),
       ),
     (m, { emoji }) => ({ ...m, reactions: toggleReaction(m.reactions, emoji, meId) }),
+    (prev, { emoji }) =>
+      prev?.reactions.some((r) => r.emoji === emoji && r.userIds.includes(meId)) ? "unpop" : "pop",
   );
 
 export function toggleReaction(list: Message["reactions"], emoji: string, meId: string) {
@@ -252,7 +259,7 @@ export function useCreateGroup() {
       unwrap(api.chats.group.$post({ json })),
     onSuccess: ({ chat }) => {
       cache.addChat(qc, chat);
-      play("success");
+      play("add");
     },
     onError: () => play("error"),
   });
