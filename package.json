@@ -1,6 +1,7 @@
 {
   "name": "sonora",
   "private": true,
+  "packageManager": "bun@1.4.5",
   "type": "module",
   "workspaces": [
     "apps/*",
