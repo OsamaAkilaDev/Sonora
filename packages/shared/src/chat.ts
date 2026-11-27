@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { username } from "./auth";
+import type { CallEndReason, CallInfo } from "./call";
 import type { UserStatus } from "./users";
 
 /** Status as others see it: invisible and disconnected both read as offline. */
@@ -84,7 +85,11 @@ export type ServerEvent =
   | { type: "presence"; userId: string; presence: Presence; lastSeenAt: number | null }
   | { type: "friend.request"; request: FriendRequest }
   | { type: "friend.accepted"; friend: PublicUser }
-  | { type: "friend.removed"; userId: string };
+  | { type: "friend.removed"; userId: string }
+  /** A call started, changed or ended (`call: null`). */
+  | { type: "call.state"; chatId: string; call: CallInfo | null; reason?: CallEndReason }
+  /** Sent when the socket opens: every call currently running in your chats. */
+  | { type: "call.sync"; calls: CallInfo[] };
 
 /** Client → server over /api/ws. */
 export type ClientEvent = { type: "typing"; chatId: string } | { type: "ping" };

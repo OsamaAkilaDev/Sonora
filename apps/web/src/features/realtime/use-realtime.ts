@@ -4,6 +4,7 @@ import { useRouterState } from "@tanstack/react-router";
 import { useEffect, useRef } from "react";
 import { play } from "../../lib/sound";
 import { notify } from "../../ui/toast";
+import { calls } from "../calls/store";
 import { cache, chatsQuery } from "../chats/queries";
 import { social, socialQuery } from "../social/queries";
 import { startRealtime, stopRealtime } from "./socket";
@@ -74,6 +75,12 @@ export function useRealtime(meId: string) {
             { title: `You and ${e.friend.username} are friends`, description: "Say hi." },
             "success",
           );
+          break;
+        case "call.state":
+          calls.set(e.chatId, e.call);
+          break;
+        case "call.sync":
+          calls.sync(e.calls);
           break;
         case "friend.removed":
           qc.setQueryData(socialQuery.queryKey, (s) => (s ? social.remove(s, e.userId) : s));

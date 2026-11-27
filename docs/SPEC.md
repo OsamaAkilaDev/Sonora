@@ -83,7 +83,7 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 - **Revoke:** deleting the row signs that session out. Settings lists your sessions, with "Sign out" on each and "Sign out all other sessions".
 - **CSRF:** SameSite=Lax, plus an `Origin` check on every mutating request, plus JSON-only bodies.
 - **Login:** one generic error ("Email or password is incorrect"). A dummy hash runs when the email is unknown so response timing doesn't leak which emails exist. Login is rate-limited per IP and per email with the Workers Rate Limiting binding.
-- **Sockets:** the browser opens `/ws` with its cookie. The Worker validates the session, then forwards to that user's Durable Object with a trusted header. The Durable Objects can't be reached from outside.
+- **Sockets:** the browser opens `/api/ws` with its cookie. The Worker validates the session, then forwards to that user's Durable Object with a trusted header. The Durable Objects can't be reached from outside.
 - **Later (phase 5):** email verification and password reset through Cloudflare Email Sending.
 
 ## 6. Realtime
@@ -106,20 +106,21 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
   - ponytail: no virtualization at first; add @tanstack/react-virtual when long chats get slow.
 - **Messages:** replies, edits (↑ edits your last message), soft deletes, reactions, emoji-only messages shown large, grouping (same sender within 5 min), day separators, and the "Tue 14 – Today" date range shown in the chat header.
 - **Read state:** each member stores the last message they've read. DMs show "Seen", and unread counts are capped at 99+.
-- **Attachments:** streamed through the Worker into R2, with a 25 MB cap and MIME allowlist. Files are served from `/api/files/:id` only after checking you're in that chat. Images keep their stored size so the layout doesn't jump while they load.
+- **Attachments:** streamed through the Worker into Backblaze B2 (S3 API; no card on Cloudflare, so no R2), with a 25 MB cap and MIME allowlist. Files are served from `/api/files/:id` only after checking you're in that chat. Images keep their stored size so the layout doesn't jump while they load.
 - **Search:** FTS5, scoped to the chats you're a member of.
 - **Other:** drafts saved per chat (localStorage), the Ctrl+K switcher, and the chat list moving rows smoothly instead of jumping.
 
 ## 8. Calls (no media vendor)
 
-- **WebRTC mesh**, capped at 6 participants. Signaling (`call.invite|accept|decline|signal|leave`) goes over the same app socket and is relayed between `UserHub`s.
-- **`CallRoom` Durable Object, one per chat.** It tracks who's in the call so people can join an ongoing group call, and ends ringing after 30s.
+- **WebRTC mesh**, capped at 6 participants.
+- **`CallRoom` Durable Object, one per chat.** Participants open a socket straight to it (`/api/calls/:chatId/ws`), so the open sockets are the member list and a closed tab leaves by itself. It relays signaling, ends unanswered calls after 30s, and tells every chat member's `UserHub` when a call starts, changes or ends (`call.state`). A new app socket gets the running calls (`call.sync`). (Chosen over relaying signals between `UserHub`s: one object per call, no per-device addressing.)
+- **Rules:** hanging up ends a one-to-one call for both sides; a dropped connection keeps it open 30s for a rejoin. Group calls last while anyone is in them. One seat per person: joining from another device moves the call.
 - **WebRTC behavior:**
-  - Negotiation uses the "perfect negotiation" pattern.
-  - Screen share and device switching swap the outgoing track in place, with no renegotiation.
-  - Speaking detection runs on an `AnalyserNode`, and noise suppression and echo cancellation use the browser's built-in audio constraints.
-- **ICE:** Cloudflare STUN, plus TURN credentials minted per call by `POST /api/calls/ice` (short-lived). `TURN_PROVIDER = cloudflare | coturn | none` is a config value, so we can move to our own coturn server later.
-- **Mini call bar:** stays docked in the side rail while you browse other chats. Leave is red and set apart from the other controls.
+  - Whoever joins later makes the offers, so there is never offer glare. Only the offerer restarts ICE.
+  - Mute, camera, screen share and device switching swap the outgoing track in place, with no renegotiation. A screen share takes the camera's place.
+  - Speaking detection runs on an `AnalyserNode`; noise suppression, echo cancellation and auto gain are the browser's audio constraints.
+- **ICE:** Cloudflare STUN only. No TURN (Cloudflare's needs a card on the account), so strict firewalls and some mobile networks can't connect; the tile says so. Add a provider by extending `ICE_SERVERS` with API-minted credentials.
+- **While you browse:** a mini call card in the side rail (desktop) or a slim bar under the top bar (phones). Incoming calls ring wherever you are.
 
 ## 9. Frontend
 
@@ -163,7 +164,7 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 1. Scaffold, design system, auth, sessions, the app shell with skeletons and the intro animation, the phone layout, and installable PWA basics (manifest, precache, update prompt).
 2. Friends, DMs and groups, messages, the realtime socket, presence and typing.
 3. Replies, reactions, edits, attachments, search, unread counts, drafts and the Ctrl+K switcher.
-4. Voice and video calls, screen share, devices, the mini call bar, and TURN.
+4. Voice and video calls, screen share, devices and the mini call bar.
 5. Settings, a new background for the sign-in screens, email verification and reset, Web Push, the offline message queue, deploy, and a polish pass.
 
 ## 12. Open decisions

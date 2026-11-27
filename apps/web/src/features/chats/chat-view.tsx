@@ -9,6 +9,9 @@ import { cx } from "../../lib/cx";
 import { dayLabel } from "../../lib/format";
 import { Avatar } from "../../ui/avatar";
 import { meQuery } from "../auth/queries";
+import { CallStage } from "../calls/call-stage";
+import { CallButtons, JoinBanner } from "../calls/chat-calls";
+import { useCall } from "../calls/store";
 import { useTypingIn } from "../realtime/typing";
 import { EmptyState } from "../shell/empty-state";
 import { presenceLabel } from "../social/friend-list";
@@ -23,6 +26,7 @@ export function ChatView({ chatId }: { chatId: string }) {
   const me = useQuery(meQuery).data;
   const chats = useQuery(chatsQuery);
   const chat = chats.data?.find((c) => c.id === chatId);
+  const inCall = useCall((s) => s.chatId === chatId);
 
   if (!me || chats.isPending) return <ViewSkeleton />;
   if (!chat)
@@ -38,8 +42,10 @@ export function ChatView({ chatId }: { chatId: string }) {
       />
     );
   return (
-    <div className="flex h-full flex-col">
+    <div className="relative flex h-full flex-col">
       <Header chat={chat} me={me} />
+      <JoinBanner chat={chat} me={me} />
+      {inCall && <CallStage chat={chat} me={me} />}
       <Feed chat={chat} me={me} />
       <ChatComposer chat={chat} me={me} />
     </div>
@@ -85,6 +91,7 @@ function Header({ chat, me }: { chat: ChatSummary; me: Me }) {
           {sub}
         </p>
       </div>
+      <CallButtons chatId={chat.id} meId={me.id} />
     </header>
   );
 }

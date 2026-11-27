@@ -7,6 +7,7 @@ import { listTime } from "../../lib/format";
 import { Avatar } from "../../ui/avatar";
 import { Button } from "../../ui/button";
 import { meQuery } from "../auth/queries";
+import { useCalls } from "../calls/store";
 import { useTypingIn } from "../realtime/typing";
 import { EmptyState } from "../shell/empty-state";
 import { chatsQuery } from "./queries";
@@ -60,6 +61,7 @@ export function ChatList({ onFindFriends }: { onFindFriends: () => void }) {
 function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: boolean }) {
   const peer = peerOf(chat, me.id);
   const typing = useTypingIn(chat.id);
+  const calling = useCalls((s) => !!s.byChat[chat.id]);
   const last = chat.lastMessage;
   const unread = chat.unread > 0;
   const sender =
@@ -110,10 +112,16 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
           <span
             className={cx(
               "min-w-0 flex-1 truncate text-[13px]",
-              typing.length ? "text-cyan-ink" : unread ? "text-ink-2" : "text-slate",
+              calling || typing.length ? "text-cyan-ink" : unread ? "text-ink-2" : "text-slate",
             )}
           >
-            {typing.length ? "typing…" : last ? sender + previewText(last) : "Say hello"}
+            {calling
+              ? "Call in progress"
+              : typing.length
+                ? "typing…"
+                : last
+                  ? sender + previewText(last)
+                  : "Say hello"}
           </span>
           {unread && (
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-cyan px-1.5 text-[11.5px] leading-none font-semibold text-white tabular-nums">

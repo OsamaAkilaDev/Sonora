@@ -21,6 +21,8 @@ const merge = extendTailwindMerge({
         "red",
         "green",
         "amber",
+        "red-solid",
+        "green-solid",
       ],
       shadow: ["panel", "pop", "btn"],
       ease: ["out-quint"],

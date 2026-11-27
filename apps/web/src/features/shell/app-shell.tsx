@@ -6,6 +6,8 @@ import { type ReactNode, useState } from "react";
 import { cx } from "../../lib/cx";
 import { Logo } from "../../ui/logo";
 import { meQuery } from "../auth/queries";
+import { CallDock, useCallElsewhere } from "../calls/call-dock";
+import { CallLayer } from "../calls/call-layer";
 import { useRealtime } from "../realtime/use-realtime";
 import { SettingsDialog } from "../settings/settings-dialog";
 import { Switcher } from "../switcher/switcher";
@@ -19,6 +21,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
   const me = useQuery(meQuery).data;
   useRealtime(me?.id ?? "");
+  const call = useCallElsewhere();
   // Phones show one pane at a time: the list, or the open chat.
   const inChat = useRouterState({ select: (s) => s.location.pathname.startsWith("/c/") });
   const [intro] = useState(() => {
@@ -39,15 +42,22 @@ export function AppShell({ children }: { children: ReactNode }) {
       {intro && <Intro />}
       <SettingsDialog />
       <Switcher />
+      <CallLayer />
       <div
         className={cx(
           "fixed inset-0 grid gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pb-[max(8px,env(safe-area-inset-bottom))]",
           "grid-cols-1 grid-rows-[52px_minmax(0,1fr)] md:grid-cols-[300px_minmax(0,1fr)]",
+          call.phone && "max-md:grid-rows-[52px_52px_minmax(0,1fr)]",
         )}
       >
         <m.div {...panel(0)} className="md:col-span-2">
           <TopBar />
         </m.div>
+        {call.phone && (
+          <div className="md:hidden">
+            <CallDock variant="bar" />
+          </div>
+        )}
         <m.aside
           {...panel(1)}
           aria-label="Conversations"

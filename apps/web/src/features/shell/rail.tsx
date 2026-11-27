@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { cx } from "../../lib/cx";
 import { IconButton } from "../../ui/button";
+import { CallDock, useCallElsewhere } from "../calls/call-dock";
 import { ChatList } from "../chats/chat-list";
 import { NewGroupDialog } from "../chats/new-group-dialog";
 import { FriendList } from "../social/friend-list";
@@ -20,6 +21,7 @@ const tabs: { id: Tab; label: string; icon: Icon }[] = [
 export function Rail() {
   const [tab, setTab] = useState<Tab>("chats");
   const [newGroup, setNewGroup] = useState(false);
+  const call = useCallElsewhere();
   const incoming =
     useQuery(socialQuery).data?.requests.filter((r) => r.direction === "incoming").length ?? 0;
 
@@ -77,6 +79,11 @@ export function Rail() {
         {tab === "friends" && <FriendList />}
         {tab === "requests" && <RequestList />}
       </div>
+      {call.desktop && (
+        <div className="max-md:hidden">
+          <CallDock variant="card" />
+        </div>
+      )}
       <NewGroupDialog open={newGroup} onOpenChange={setNewGroup} />
     </div>
   );

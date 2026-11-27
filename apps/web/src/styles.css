@@ -19,6 +19,9 @@
   --red: #dc3b3b;
   --green: #1fa95b;
   --amber: #d99a16;
+  /* Filled call buttons: white on these clears 4.5:1 in both themes. */
+  --red-solid: #cc2f2f;
+  --green-solid: #157f43;
   --skel: #efeeeb;
   --avatar-bg: #ecebe7;
   --skel-hi: #f8f7f5;
@@ -84,6 +87,8 @@
   --color-red: var(--red);
   --color-green: var(--green);
   --color-amber: var(--amber);
+  --color-red-solid: var(--red-solid);
+  --color-green-solid: var(--green-solid);
   --shadow-panel: var(--shadow-panel);
   --shadow-pop: var(--shadow-pop);
   --shadow-btn: var(--shadow-btn);
@@ -256,6 +261,26 @@
 }
 .theme-reveal::view-transition-new(root) {
   z-index: 1;
+}
+
+/* Ringing: a ring that leaves the avatar. */
+.ringing {
+  animation: ringing 1.6s cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+@keyframes ringing {
+  from {
+    box-shadow: 0 0 0 0 color-mix(in oklab, var(--cyan) 55%, transparent);
+  }
+  to {
+    box-shadow: 0 0 0 18px transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ringing {
+    animation: none;
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--cyan) 55%, transparent);
+  }
 }
 
 /* Typing indicator: a small rise and fade, staggered per dot via animation-delay. */

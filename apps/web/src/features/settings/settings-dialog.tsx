@@ -2,6 +2,7 @@ import { Dialog } from "@base-ui/react/dialog";
 import {
   Desktop,
   DeviceMobile,
+  Headphones,
   type Icon,
   PaintBrush,
   ShieldCheck,
@@ -18,14 +19,16 @@ import { Button } from "../../ui/button";
 import { Segmented } from "../../ui/segmented";
 import { Switch } from "../../ui/switch";
 import { meQuery, useLogout } from "../auth/queries";
+import { DevicesCards } from "./devices-section";
 import { sessionsQuery, useRevokeOthers, useRevokeSession } from "./queries";
 
-export const settingsSections = ["account", "sessions", "appearance"] as const;
+export const settingsSections = ["account", "sessions", "devices", "appearance"] as const;
 export type SettingsSection = (typeof settingsSections)[number];
 
 const nav: { id: SettingsSection; label: string; icon: Icon }[] = [
   { id: "account", label: "Account", icon: ShieldCheck },
   { id: "sessions", label: "Sessions", icon: Desktop },
+  { id: "devices", label: "Voice & video", icon: Headphones },
   { id: "appearance", label: "Appearance", icon: PaintBrush },
 ];
 
@@ -82,6 +85,15 @@ export function SettingsDialog() {
             </Dialog.Close>
             {settings === "account" && <Account />}
             {settings === "sessions" && <Sessions />}
+            {settings === "devices" && (
+              <>
+                <Heading
+                  title="Voice & video"
+                  lead="Pick your devices. Changes apply to a call in progress."
+                />
+                <DevicesCards />
+              </>
+            )}
             {settings === "appearance" && <Appearance />}
           </div>
         </Dialog.Popup>

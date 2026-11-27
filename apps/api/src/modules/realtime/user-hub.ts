@@ -1,5 +1,5 @@
 import { DurableObject } from "cloudflare:workers";
-import type { ClientEvent, ServerEvent } from "@sonora/shared";
+import type { CallInfo, ClientEvent, ServerEvent } from "@sonora/shared";
 import { and, eq, or } from "drizzle-orm";
 import { createDb } from "../../core/db";
 import { chatMembers, friendships, users } from "../../db/schema";
@@ -26,12 +26,25 @@ export class UserHub extends DurableObject<Env> {
     const { 0: client, 1: server } = new WebSocketPair();
     this.ctx.acceptWebSocket(server);
     server.serializeAttachment({ userId });
+    // Calls already running, so a fresh tab can show and join them.
+    const calls = [...(await this.ctx.storage.list<CallInfo>({ prefix: "call:" })).values()];
+    server.send(
+      JSON.stringify({
+        type: "call.sync",
+        calls: calls.map((c) => (c.ringingUntil < Date.now() ? { ...c, ringingUntil: 0 } : c)),
+      } satisfies ServerEvent),
+    );
     if (this.ctx.getWebSockets().length === 1) await this.setConnected(userId, true);
     return new Response(null, { status: 101, webSocket: client });
   }
 
   /** RPC: deliver an event to all of this user's open sockets. */
   async publish(event: ServerEvent) {
+    if (event.type === "call.state") {
+      const key = `call:${event.chatId}`;
+      if (event.call) await this.ctx.storage.put(key, event.call);
+      else await this.ctx.storage.delete(key);
+    }
     const data = JSON.stringify(event);
     for (const ws of this.ctx.getWebSockets()) {
       try {

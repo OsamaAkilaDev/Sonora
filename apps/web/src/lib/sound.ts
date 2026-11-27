@@ -30,6 +30,26 @@ const sounds = {
     { f: 233, dur: 0.16, wave: "triangle", gain: 0.07 },
     { f: 196, at: 0.08, dur: 0.22, wave: "triangle", gain: 0.06 },
   ],
+  /** Incoming call: a soft rising phrase, repeated while it rings. */
+  ring: [
+    { f: 659.25, dur: 0.22, gain: 0.07 },
+    { f: 880, at: 0.18, dur: 0.22, gain: 0.07 },
+    { f: 1046.5, at: 0.36, dur: 0.4, gain: 0.06 },
+  ],
+  /** Your call is ringing on the other side. */
+  ringback: [
+    { f: 440, dur: 0.5, gain: 0.025 },
+    { f: 554.37, dur: 0.5, gain: 0.02 },
+  ],
+  /** Someone entered or left your call. */
+  join: [
+    { f: 587.33, dur: 0.09 },
+    { f: 880, at: 0.07, dur: 0.14 },
+  ],
+  leave: [
+    { f: 659.25, dur: 0.09 },
+    { f: 440, at: 0.07, dur: 0.16 },
+  ],
   /** Theme change: one airy tone. */
   theme: [{ f: 1046.5, dur: 0.35, gain: 0.03 }],
   /** Small confirmations (signed out a session, toggles). */
@@ -64,8 +84,9 @@ function output() {
   return { ctx, out: out as AudioNode };
 }
 
-export function play(name: SoundName) {
-  if (!enabled || document.visibilityState === "hidden") return;
+/** `background`: also sound when the tab is hidden (calls must be heard). */
+export function play(name: SoundName, { background = false } = {}) {
+  if (!enabled || (!background && document.visibilityState === "hidden")) return;
   try {
     const { ctx, out } = output();
     const now = ctx.currentTime + 0.01;
