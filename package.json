@@ -9,7 +9,7 @@
   "scripts": {
     "dev": "bun --filter @sonora/web dev",
     "build": "bun --filter @sonora/web build",
-    "deploy": "bun --filter @sonora/web deploy",
+    "deploy": "bun --filter @sonora/api db:migrate:remote && bun --filter @sonora/web deploy",
     "typecheck": "bun --filter '*' typecheck",
     "test": "bun --filter @sonora/api test",
     "lint": "biome check .",

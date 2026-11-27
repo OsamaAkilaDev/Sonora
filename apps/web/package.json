@@ -6,7 +6,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "deploy": "vite build && wrangler deploy",
+    "deploy": "wrangler deploy",
     "typecheck": "tsc -p ."
   },
   "dependencies": {

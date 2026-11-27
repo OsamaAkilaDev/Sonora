@@ -20,7 +20,7 @@
     {
       "binding": "DB",
       "database_name": "sonora",
-      "database_id": "00000000-0000-0000-0000-000000000000",
+      "database_id": "396b0e7a-329f-44c1-9a44-acacea108c25",
       "migrations_dir": "./migrations"
     }
   ]

@@ -10,7 +10,8 @@
     "typecheck": "tsc -p .",
     "test": "vitest run",
     "db:generate": "drizzle-kit generate",
-    "db:migrate:local": "wrangler d1 migrations apply sonora --local --persist-to ../web/.wrangler/state"
+    "db:migrate:local": "wrangler d1 migrations apply sonora --local --persist-to ../web/.wrangler/state",
+    "db:migrate:remote": "wrangler d1 migrations apply sonora --remote"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.9.1",

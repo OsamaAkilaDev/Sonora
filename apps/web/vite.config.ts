@@ -12,7 +12,8 @@ export default defineConfig({
     tailwindcss(),
     // Runs apps/api as the real Worker (workerd + D1 + DOs) inside Vite dev; build emits both.
     cloudflare({ configPath: "../api/wrangler.jsonc" }),
-    VitePWA({
+    // Browser build only: the service worker has no business in the Worker bundle.
+    ...VitePWA({
       registerType: "prompt", // never swap code under a live call; the user reloads
       pwaAssets: { config: true },
       manifest: {
@@ -33,6 +34,6 @@ export default defineConfig({
         navigateFallbackDenylist: [/^\/api\//, /^\/ws/, /^\/cdn-cgi\//],
         cleanupOutdatedCaches: true,
       },
-    }),
+    }).map((p) => ({ ...p, applyToEnvironment: (env: { name: string }) => env.name === "client" })),
   ],
 });
