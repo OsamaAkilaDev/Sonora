@@ -4,6 +4,7 @@ import type { AppEnv } from "../../core/app";
 import { rateLimit, sameOrigin } from "../../core/guards";
 import { body } from "../../core/validate";
 import { login, signup, toMe } from "./auth.service";
+import { PROFILES, type Profile } from "./password";
 import {
   clearSessionCookie,
   createSession,
@@ -15,14 +16,18 @@ import {
   setSessionCookie,
 } from "./session";
 
+/** Unknown or missing values fall back to the strong profile, never the weak one. */
+const passwordProfile = (env: Env): Profile =>
+  Object.hasOwn(PROFILES, env.PASSWORD_PROFILE) ? (env.PASSWORD_PROFILE as Profile) : "owasp";
+
 export const authRoutes = new Hono<AppEnv>()
   .post("/signup", sameOrigin, rateLimit("signup"), body(signupInput), async (c) => {
-    const user = await signup(c.var.db, c.req.valid("json"));
+    const user = await signup(c.var.db, c.req.valid("json"), passwordProfile(c.env));
     setSessionCookie(c, await createSession(c.var.db, user.id, sessionMeta(c)));
     return c.json({ user: toMe(user) }, 201);
   })
   .post("/login", sameOrigin, rateLimit("login"), body(loginInput), async (c) => {
-    const user = await login(c.var.db, c.req.valid("json"));
+    const user = await login(c.var.db, c.req.valid("json"), passwordProfile(c.env));
     setSessionCookie(c, await createSession(c.var.db, user.id, sessionMeta(c)));
     return c.json({ user: toMe(user) });
   })

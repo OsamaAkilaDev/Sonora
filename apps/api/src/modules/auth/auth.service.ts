@@ -4,7 +4,7 @@ import { ulid } from "ulid";
 import type { Db } from "../../core/db";
 import { AppError } from "../../core/errors";
 import { type User, users } from "../../db/schema";
-import { dummyHash, hashPassword, verifyPassword } from "./password";
+import { dummyHash, hashPassword, needsRehash, type Profile, verifyPassword } from "./password";
 
 export const toMe = (u: User): Me => ({
   id: u.id,
@@ -16,7 +16,7 @@ export const toMe = (u: User): Me => ({
   createdAt: u.createdAt.getTime(),
 });
 
-export async function signup(db: Db, input: SignupInput): Promise<User> {
+export async function signup(db: Db, input: SignupInput, profile: Profile): Promise<User> {
   const taken = await db
     .select({ email: users.email, username: users.username })
     .from(users)
@@ -32,7 +32,7 @@ export async function signup(db: Db, input: SignupInput): Promise<User> {
     id: ulid(),
     email: input.email,
     username: input.username,
-    passwordHash: await hashPassword(input.password),
+    passwordHash: await hashPassword(input.password, profile),
     avatarSeed: crypto.randomUUID().slice(0, 8),
     about: "",
     status: "online",
@@ -50,10 +50,16 @@ export async function signup(db: Db, input: SignupInput): Promise<User> {
   return user;
 }
 
-export async function login(db: Db, input: LoginInput): Promise<User> {
+export async function login(db: Db, input: LoginInput, profile: Profile): Promise<User> {
   const user = await db.select().from(users).where(eq(users.email, input.email)).get();
-  const ok = await verifyPassword(input.password, user?.passwordHash ?? (await dummyHash()));
+  const ok = await verifyPassword(input.password, user?.passwordHash ?? (await dummyHash(profile)));
   if (!user || !ok)
     throw new AppError(401, "invalid_credentials", "Email or password is incorrect");
+  // Stored with weaker params than configured (e.g. after moving to "owasp"): upgrade now.
+  if (needsRehash(user.passwordHash, profile)) {
+    const passwordHash = await hashPassword(input.password, profile);
+    await db.update(users).set({ passwordHash }).where(eq(users.id, user.id));
+    return { ...user, passwordHash };
+  }
   return user;
 }

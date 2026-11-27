@@ -78,7 +78,7 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 
 ## 5. Auth & sessions
 
-- **Passwords:** scrypt from `node:crypto` (native in workerd), OWASP profile N=2^15, r=8, p=3 (~32 MiB, ~150 ms), per-user salt, params stored in the hash so they can be raised. (PBKDF2 was dropped: production Workers cap Web Crypto PBKDF2 at 100k iterations, below OWASP's 600k.)
+- **Passwords:** scrypt from `node:crypto` (native in workerd). Profile chosen by the `PASSWORD_PROFILE` var: `free` = N=2^12, r=8, p=1 (~4 MiB, fits the free plan's 10 ms CPU limit; weaker) and `owasp` = N=2^15, r=8, p=3 (~32 MiB; needs Workers Paid). Params are stored in each hash and logins rehash to the configured profile, so switching to `owasp` upgrades every account on its next sign-in. (PBKDF2 was dropped: production Workers cap Web Crypto PBKDF2 at 100k iterations, below OWASP's 600k.) **Currently on `free`.**
 - **Session:** a random 32-byte token in a `__Host-sid` cookie (`HttpOnly; Secure; SameSite=Lax; Path=/`). The database stores only its SHA-256. It has a 30-day sliding expiry, and `last_seen_at` is written at most once an hour.
 - **Revoke:** deleting the row signs that session out. Settings lists your sessions, with "Sign out" on each and "Sign out all other sessions".
 - **CSRF:** SameSite=Lax, plus an `Origin` check on every mutating request, plus JSON-only bodies.
@@ -168,5 +168,5 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 
 ## 12. Open decisions
 
-1. **Workers Paid ($5/mo) is recommended.** The free plan's 10 ms CPU limit per request can't run PBKDF2 at 600k iterations, and calls plus realtime will want headroom anyway. Without it, passwords would have to use weaker hashing settings.
+1. **Workers Paid ($5/mo): deferred, running on the free plan with the `free` password profile.** Flip `PASSWORD_PROFILE` to `owasp` when upgrading. The free plan's 10 ms CPU limit per request can't run PBKDF2 at 600k iterations, and calls plus realtime will want headroom anyway. Without it, passwords would have to use weaker hashing settings.
 2. **TypeScript 7** (the native compiler) is stable, so we use it. If any tool in the chain breaks, we pin 6.0.3.
