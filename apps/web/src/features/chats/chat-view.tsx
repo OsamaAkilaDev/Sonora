@@ -39,7 +39,11 @@ export function ChatView({ chatId }: { chatId: string }) {
         title="Chat not found"
         body="It may have been removed, or you're not part of it."
         action={
-          <Link to="/" className="text-sm font-medium text-cyan-ink hover:underline">
+          <Link
+            to="/"
+            search={{ tab: "chats" }}
+            className="text-sm font-medium text-cyan-ink hover:underline"
+          >
             Back to chats
           </Link>
         }

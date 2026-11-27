@@ -156,7 +156,7 @@ function Body({
         ChatsCircle,
         () => {
           close();
-          navigate({ to: "/" });
+          navigate({ to: "/", search: { tab: "chats" } });
         },
       ],
     ];
