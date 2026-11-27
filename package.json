@@ -1,0 +1,22 @@
+{
+  "name": "sonora",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter @sonora/web dev",
+    "build": "bun --filter @sonora/web build",
+    "deploy": "bun --filter @sonora/web deploy",
+    "typecheck": "bun --filter '*' typecheck",
+    "test": "bun --filter @sonora/api test",
+    "lint": "biome check .",
+    "fix": "biome check --write ."
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.6.9",
+    "typescript": "^7.0.2"
+  }
+}

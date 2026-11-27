@@ -1,0 +1,30 @@
+{
+  "name": "@sonora/api",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "types": "wrangler types",
+    "typecheck": "tsc -p .",
+    "test": "vitest run",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate:local": "wrangler d1 migrations apply sonora --local --persist-to ../web/.wrangler/state"
+  },
+  "dependencies": {
+    "@hono/zod-validator": "^0.9.1",
+    "@sonora/shared": "workspace:*",
+    "drizzle-orm": "^0.45.4",
+    "hono": "^4.13.23",
+    "ulid": "^3.0.2",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@cloudflare/vitest-plugin": "^1.9.2",
+    "@types/node": "^26.6.11",
+    "drizzle-kit": "^0.31.11",
+    "vitest": "~4.1.12",
+    "wrangler": "^4.168.0"
+  }
+}

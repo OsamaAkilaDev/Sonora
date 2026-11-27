@@ -1,0 +1,12 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "sonora", "runtimeExecutable": "bun", "runtimeArgs": ["run", "dev"], "port": 5173 },
+    {
+      "name": "mockup",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "5180", "--directory", "mockup"],
+      "port": 5180
+    }
+  ]
+}

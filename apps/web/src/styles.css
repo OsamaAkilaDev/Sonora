@@ -1,0 +1,255 @@
+@import "@fontsource-variable/inter";
+@import "tailwindcss";
+
+/* Theme tokens: one set of names, two values. Utilities (bg-panel, text-slate…) follow data-theme. */
+:root {
+  --canvas: #faf9f6;
+  --panel: #ffffff;
+  --inset: #f5f4f2;
+  --hover: #f1f0ed;
+  --line: #ecebe8;
+  --ink: #171717;
+  --ink-2: #525252;
+  --slate: #6b6b6b;
+  --ash: #737373;
+  --on-ink: #ffffff;
+  --cyan: #0796a9;
+  --cyan-ink: #067d8d;
+  --cyan-wash: #e4f6f8;
+  --red: #dc3b3b;
+  --green: #1fa95b;
+  --amber: #d99a16;
+  --skel: #efeeeb;
+  --avatar-bg: #ecebe7;
+  --skel-hi: #f8f7f5;
+  --scrim: rgb(20 18 14 / 0.32);
+  --shadow-panel:
+    0 3px 6px -3px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05),
+    0 1px 2px -1px rgb(0 0 0 / 0.05), 0 1px 1px -1px rgb(0 0 0 / 0.05), 0 0 0 1px rgb(0 0 0 / 0.04);
+  --shadow-pop:
+    0 12px 32px -12px rgb(0 0 0 / 0.18), 0 4px 10px -4px rgb(0 0 0 / 0.08),
+    0 0 0 1px rgb(0 0 0 / 0.06);
+  --shadow-btn:
+    0 1px 1px -1px rgb(0 0 0 / 0.08), 0 2px 2px -1px rgb(0 0 0 / 0.08),
+    0 0 0 1px rgb(0 0 0 / 0.06), inset 0 1px 0 rgb(255 255 255 / 0.14);
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  --canvas: #060606;
+  --panel: #121212;
+  --inset: #1a1a1a;
+  --hover: #1e1e1e;
+  --line: #232323;
+  --ink: #ededed;
+  --ink-2: #c4c4c4;
+  --slate: #9a9a9a;
+  --ash: #868686;
+  --on-ink: #0b0b0b;
+  --cyan: #12a9bc;
+  --cyan-ink: #4cc7d6;
+  --cyan-wash: #0c2a2f;
+  --red: #f05252;
+  --green: #34c172;
+  --amber: #e8ac2c;
+  --skel: #1b1b1b;
+  --avatar-bg: #242424;
+  --skel-hi: #242424;
+  --scrim: rgb(0 0 0 / 0.6);
+  --shadow-panel:
+    0 0 0 1px #1f1f1f, inset 0 1px 0 rgb(255 255 255 / 0.03), 0 8px 24px -12px rgb(0 0 0 / 0.7);
+  --shadow-pop:
+    0 0 0 1px #2a2a2a, inset 0 1px 0 rgb(255 255 255 / 0.04), 0 24px 48px -16px rgb(0 0 0 / 0.8);
+  --shadow-btn:
+    0 0 0 1px rgb(255 255 255 / 0.08), inset 0 1px 0 rgb(255 255 255 / 0.5),
+    0 1px 2px rgb(0 0 0 / 0.4);
+  color-scheme: dark;
+}
+
+@theme inline {
+  --font-sans: "Inter Variable", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --color-canvas: var(--canvas);
+  --color-panel: var(--panel);
+  --color-inset: var(--inset);
+  --color-hover: var(--hover);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-slate: var(--slate);
+  --color-ash: var(--ash);
+  --color-on-ink: var(--on-ink);
+  --color-cyan: var(--cyan);
+  --color-cyan-ink: var(--cyan-ink);
+  --color-cyan-wash: var(--cyan-wash);
+  --color-red: var(--red);
+  --color-green: var(--green);
+  --color-amber: var(--amber);
+  --shadow-panel: var(--shadow-panel);
+  --shadow-pop: var(--shadow-pop);
+  --shadow-btn: var(--shadow-btn);
+  --ease-out-quint: cubic-bezier(0.2, 0, 0, 1);
+}
+
+@layer base {
+  html,
+  body {
+    height: 100%;
+  }
+  body {
+    @apply bg-canvas text-ink antialiased;
+    font-size: 15px;
+    line-height: 1.5;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-tap-highlight-color: transparent;
+  }
+  ::selection {
+    background: color-mix(in oklab, var(--cyan) 28%, transparent);
+  }
+  :focus-visible {
+    outline: 2px solid var(--cyan);
+    outline-offset: 2px;
+  }
+  ::placeholder {
+    color: var(--ash);
+  }
+  /* Everything you can act on says so. */
+  button:not(:disabled),
+  [role="button"],
+  [role="tab"],
+  [role="menuitem"],
+  [role="option"],
+  [role="switch"],
+  a[href],
+  label[for],
+  select,
+  summary,
+  input[type="checkbox"],
+  input[type="radio"] {
+    cursor: pointer;
+  }
+  :disabled,
+  [aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--line);
+    border: 3px solid transparent;
+    background-clip: padding-box;
+    border-radius: 99px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@utility panel {
+  background: var(--panel);
+  border-radius: 14px;
+  box-shadow: var(--shadow-panel);
+}
+
+/* Base UI toast stack: peeks when collapsed, fans out on hover/focus, swipes to dismiss. */
+.toast {
+  --gap: 8px;
+  --peek: 8px;
+  --scale: calc(max(0, 1 - (var(--toast-index) * 0.06)));
+  --shrink: calc(1 - var(--scale));
+  --height: var(--toast-frontmost-height, var(--toast-height));
+  --offset-y: calc(
+    var(--toast-offset-y) *
+    -1 +
+    (var(--toast-index) * var(--gap) * -1) +
+    var(--toast-swipe-movement-y)
+  );
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--height);
+  overflow: hidden;
+  border-radius: 14px;
+  background: var(--panel);
+  box-shadow: var(--shadow-pop);
+  transform-origin: bottom center;
+  z-index: calc(1000 - var(--toast-index));
+  user-select: none;
+  transform: translateX(var(--toast-swipe-movement-x))
+    translateY(
+      calc(
+        var(--toast-swipe-movement-y) -
+        (var(--toast-index) * var(--peek)) -
+        (var(--shrink) * var(--height))
+      )
+    )
+    scale(var(--scale));
+  transition:
+    transform 0.4s cubic-bezier(0.2, 0, 0, 1),
+    opacity 0.3s,
+    height 0.15s;
+}
+.toast::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: calc(var(--gap) + 1px);
+}
+.toast[data-expanded] {
+  transform: translateX(var(--toast-swipe-movement-x)) translateY(var(--offset-y));
+  height: var(--toast-height);
+}
+.toast[data-ending-style] {
+  opacity: 0;
+}
+.toast[data-starting-style],
+.toast[data-ending-style]:not([data-swipe-direction]) {
+  transform: translateY(120%);
+}
+.toast[data-limited] {
+  opacity: 0;
+}
+.toast[data-ending-style][data-swipe-direction="right"] {
+  transform: translateX(calc(var(--toast-swipe-movement-x) + 120%)) translateY(var(--offset-y));
+}
+.toast[data-ending-style][data-swipe-direction="down"] {
+  transform: translateY(calc(var(--toast-swipe-movement-y) + 120%));
+}
+
+/* Loading placeholder: continuous shimmer (linear), static under reduced motion. */
+@utility skeleton {
+  display: block;
+  border-radius: 8px;
+  background: linear-gradient(90deg, var(--skel) 0%, var(--skel-hi) 40%, var(--skel) 80%);
+  background-size: 300% 100%;
+  animation: shimmer 1.4s linear infinite;
+}
+@keyframes shimmer {
+  from {
+    background-position: 100% 0;
+  }
+  to {
+    background-position: -50% 0;
+  }
+}
+
+/* Theme switch: the new theme grows as a circle from where you clicked (lib/theme.ts). */
+.theme-reveal::view-transition-old(root),
+.theme-reveal::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+.theme-reveal::view-transition-new(root) {
+  z-index: 1;
+}

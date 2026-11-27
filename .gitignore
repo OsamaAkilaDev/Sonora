@@ -1,0 +1,10 @@
+node_modules
+dist
+.wrangler
+.dev.vars*
+!.dev.vars.example
+*.local
+.DS_Store
+.impeccable/review
+.playwright-mcp
+.claude/settings.local.json

@@ -1,0 +1,21 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "inter",
+        "createdAt": "2026-11-27T06:06:31.743Z",
+        "reason": "brief-pinned: user's supplied style reference (Campsite) specifies Inter as the sole typeface"
+      },
+      {
+        "rule": "pulsing-dot",
+        "value": "*",
+        "files": ["mockup/index.html"],
+        "createdAt": "2026-11-27T06:06:31.999Z",
+        "reason": "animated dots only mark genuinely live state (typing indicator, ringing call), per product spec"
+      }
+    ]
+  }
+}
