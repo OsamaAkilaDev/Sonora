@@ -6,7 +6,13 @@
   "compatibility_flags": ["nodejs_compat"],
   "observability": { "enabled": true },
   // "free" fits the free plan's 10 ms CPU limit; set "owasp" on Workers Paid (accounts upgrade on next login).
-  "vars": { "PASSWORD_PROFILE": "free" },
+  "vars": {
+    "PASSWORD_PROFILE": "free",
+    "B2_ENDPOINT": "s3.eu-central-003.backblazeb2.com",
+    "B2_BUCKET": "sonora-files"
+  },
+  // Set with `wrangler secret put`; locally in apps/api/.dev.vars.
+  "secrets": { "required": ["B2_KEY_ID", "B2_APP_KEY"] },
   "assets": {
     "not_found_handling": "single-page-application",
     "run_worker_first": ["/api/*", "/ws"]
@@ -18,7 +24,6 @@
     "bindings": [{ "name": "USER_HUB", "class_name": "UserHub" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserHub"] }],
-  "r2_buckets": [{ "binding": "FILES", "bucket_name": "sonora-files" }],
   "d1_databases": [
     {
       "binding": "DB",

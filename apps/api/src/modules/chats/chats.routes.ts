@@ -14,6 +14,7 @@ import { z } from "zod";
 import type { AppEnv } from "../../core/app";
 import { AppError } from "../../core/errors";
 import { sameOrigin } from "../../core/guards";
+import { storage } from "../../core/storage";
 import { body } from "../../core/validate";
 import { requireAuth } from "../auth/session";
 import { publish } from "../realtime/publish";
@@ -124,7 +125,7 @@ export const chatsRoutes = new Hono<AppEnv>()
       c.req.param("id"),
       c.req.param("messageId"),
     );
-    if (keys.length) c.executionCtx.waitUntil(c.env.FILES.delete(keys));
+    if (keys.length) c.executionCtx.waitUntil(storage(c.env).delete(keys));
     c.executionCtx.waitUntil(publish(c.env, memberIds, { type: "message.updated", message }));
     return c.json({ message });
   })
@@ -150,9 +151,11 @@ export const chatsRoutes = new Hono<AppEnv>()
     if (!h("content-length") || !Number.isInteger(size) || size < 0)
       throw new AppError(411, "length_required", "Content-Length is required");
     if (size > MAX_UPLOAD_BYTES) throw new AppError(413, "too_large", "That file is too large");
+    const stream = c.req.raw.body;
+    if (!stream || size === 0) throw new AppError(422, "empty_file", "That file is empty");
     const attachment = await createAttachment(
       c.var.db,
-      c.env.FILES,
+      storage(c.env),
       c.var.user.id,
       c.req.param("id"),
       {
@@ -162,7 +165,7 @@ export const chatsRoutes = new Hono<AppEnv>()
         width: dimension(h("x-width")),
         height: dimension(h("x-height")),
       },
-      c.req.raw.body,
+      stream,
     );
     return c.json({ attachment }, 201);
   });

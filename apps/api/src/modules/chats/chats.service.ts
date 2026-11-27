@@ -10,6 +10,7 @@ import { and, asc, desc, eq, gt, inArray, isNull, lt, max, ne, or, sql } from "d
 import { ulid } from "ulid";
 import type { Db } from "../../core/db";
 import { AppError } from "../../core/errors";
+import type { storage } from "../../core/storage";
 import {
   type AttachmentRow,
   attachments,
@@ -398,12 +399,12 @@ export async function editMessage(
   return { message: await hydrateOne(db, updated), memberIds: await memberIdsOf(db, chatId) };
 }
 
-/** Soft delete. Returns the R2 keys of the removed attachments for the caller to purge. */
+/** Soft delete. Returns the storage keys of the removed attachments for the caller to purge. */
 export async function deleteMessage(db: Db, me: string, chatId: string, messageId: string) {
   const row = await loadOwn(db, me, chatId, messageId);
   if (row.deletedAt) return { message: await hydrateOne(db, row), memberIds: [], keys: [] };
   const files = await db
-    .select({ key: attachments.r2Key })
+    .select({ key: attachments.fileKey })
     .from(attachments)
     .where(eq(attachments.messageId, row.id))
     .all();
@@ -465,24 +466,23 @@ export type UploadMeta = {
 
 export async function createAttachment(
   db: Db,
-  files: R2Bucket,
+  files: ReturnType<typeof storage>,
   me: string,
   chatId: string,
   meta: UploadMeta,
-  stream: ReadableStream | null,
+  stream: ReadableStream,
 ) {
   await requireMember(db, chatId, me);
   const id = ulid();
-  const r2Key = `chats/${chatId}/${id}`;
-  const obj = await files.put(r2Key, stream, { httpMetadata: { contentType: meta.mime } });
+  const fileKey = `chats/${chatId}/${id}`;
+  await files.put(fileKey, stream, meta.size, meta.mime);
   const row: AttachmentRow = {
     id,
     chatId,
     uploaderId: me,
     messageId: null,
-    r2Key,
+    fileKey,
     ...meta,
-    size: obj.size,
     createdAt: new Date(),
   };
   await db.insert(attachments).values(row);

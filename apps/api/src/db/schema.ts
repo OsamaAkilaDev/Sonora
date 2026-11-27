@@ -128,7 +128,7 @@ export const reactions = sqliteTable(
   (t) => [primaryKey({ columns: [t.messageId, t.userId, t.emoji] })],
 );
 
-/** Uploaded first (messageId null), then claimed by the message that sends it. Bytes live in R2. */
+/** Uploaded first (messageId null), then claimed by the message that sends it. Bytes live in B2 (core/storage). */
 export const attachments = sqliteTable(
   "attachments",
   {
@@ -140,7 +140,9 @@ export const attachments = sqliteTable(
       .notNull()
       .references(() => users.id, { onDelete: "cascade" }),
     messageId: text("message_id").references(() => messages.id, { onDelete: "cascade" }),
-    r2Key: text("r2_key").notNull(),
+    fileKey:
+      text("r2_key") /* column predates the move to B2 */
+        .notNull(),
     name: text("name").notNull(),
     mime: text("mime").notNull(),
     size: integer("size").notNull(),

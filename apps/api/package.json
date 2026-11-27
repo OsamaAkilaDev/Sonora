@@ -16,6 +16,7 @@
   "dependencies": {
     "@hono/zod-validator": "^0.9.1",
     "@sonora/shared": "workspace:*",
+    "aws4fetch": "1.0.20",
     "drizzle-orm": "^0.45.4",
     "hono": "^4.13.23",
     "ulid": "^3.0.2",

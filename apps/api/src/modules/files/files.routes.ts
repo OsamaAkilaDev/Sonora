@@ -2,6 +2,7 @@ import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type { AppEnv } from "../../core/app";
 import { AppError } from "../../core/errors";
+import { storage } from "../../core/storage";
 import { attachments, chatMembers } from "../../db/schema";
 import { requireAuth } from "../auth/session";
 
@@ -24,34 +25,21 @@ export const filesRoutes = new Hono<AppEnv>().use(requireAuth).get("/:id", async
   if (!row) throw notFound;
   const { file } = row;
 
-  const ranged = c.req.raw.headers.has("range");
-  const obj = await c.env.FILES.get(file.r2Key, { range: c.req.raw.headers });
+  const obj = await storage(c.env).get(file.fileKey, c.req.header("range"));
   if (!obj) throw notFound;
 
-  const mime = obj.httpMetadata?.contentType ?? file.mime;
-  let status: 200 | 206 = 200;
-  let length = obj.size;
+  // B2 answers Range itself (206 + Content-Range); keep its length/range/etag, set our own policy.
   const headers = new Headers({
-    "Content-Type": mime,
-    ETag: obj.httpEtag,
+    "Content-Type": file.mime,
     "Accept-Ranges": "bytes",
     "Cache-Control": "private, max-age=31536000, immutable",
     "X-Content-Type-Options": "nosniff",
     "Content-Security-Policy": "default-src 'none'; sandbox",
-    "Content-Disposition": `${INLINE.test(mime) ? "inline" : "attachment"}; filename*=UTF-8''${rfc5987(file.name)}`,
+    "Content-Disposition": `${INLINE.test(file.mime) ? "inline" : "attachment"}; filename*=UTF-8''${rfc5987(file.name)}`,
   });
-  const r = ranged ? obj.range : undefined;
-  if (r) {
-    const {
-      offset = 0,
-      length: len,
-      suffix,
-    } = r as { offset?: number; length?: number; suffix?: number };
-    const start = suffix === undefined ? offset : obj.size - suffix;
-    length = len ?? obj.size - start;
-    status = 206;
-    headers.set("Content-Range", `bytes ${start}-${start + length - 1}/${obj.size}`);
+  for (const h of ["content-length", "content-range", "etag"]) {
+    const v = obj.headers.get(h);
+    if (v) headers.set(h, v);
   }
-  headers.set("Content-Length", String(length));
-  return new Response(obj.body, { status, headers });
+  return new Response(obj.body, { status: obj.status, headers });
 });
