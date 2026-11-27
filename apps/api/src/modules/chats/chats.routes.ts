@@ -1,5 +1,14 @@
 import { zValidator } from "@hono/zod-validator";
-import { createGroupInput, markReadInput, openDmInput, sendMessageInput } from "@sonora/shared";
+import {
+  createGroupInput,
+  editMessageInput,
+  MAX_UPLOAD_BYTES,
+  markReadInput,
+  openDmInput,
+  reactInput,
+  sendMessageInput,
+  uploadAllowed,
+} from "@sonora/shared";
 import { Hono } from "hono";
 import { z } from "zod";
 import type { AppEnv } from "../../core/app";
@@ -9,14 +18,38 @@ import { body } from "../../core/validate";
 import { requireAuth } from "../auth/session";
 import { publish } from "../realtime/publish";
 import {
+  createAttachment,
   createGroup,
+  deleteMessage,
+  editMessage,
   getChat,
   listChats,
   markRead,
   messagePage,
   openDm,
+  requireMember,
   sendMessage,
+  toggleReaction,
 } from "./chats.service";
+
+const dimension = (v: string | undefined) => {
+  const n = Number(v);
+  return v && Number.isInteger(n) && n > 0 && n <= 20000 ? n : null;
+};
+
+/** Decoded, separator- and control-free, capped; "file" when nothing is left. */
+function fileName(raw: string | undefined) {
+  let name = raw ?? "";
+  try {
+    name = decodeURIComponent(name);
+  } catch {}
+  return (
+    name
+      .replace(/[\\/\p{Cc}]/gu, "")
+      .trim()
+      .slice(0, 200) || "file"
+  );
+}
 
 export const chatsRoutes = new Hono<AppEnv>()
   .use(requireAuth)
@@ -72,4 +105,64 @@ export const chatsRoutes = new Hono<AppEnv>()
         publish(c.env, others, { type: "read", chatId, userId: c.var.user.id, lastReadId }),
       );
     return c.json({ ok: true });
+  })
+  .patch("/:id/messages/:messageId", sameOrigin, body(editMessageInput), async (c) => {
+    const { message, memberIds } = await editMessage(
+      c.var.db,
+      c.var.user.id,
+      c.req.param("id"),
+      c.req.param("messageId"),
+      c.req.valid("json").body,
+    );
+    c.executionCtx.waitUntil(publish(c.env, memberIds, { type: "message.updated", message }));
+    return c.json({ message });
+  })
+  .delete("/:id/messages/:messageId", sameOrigin, async (c) => {
+    const { message, memberIds, keys } = await deleteMessage(
+      c.var.db,
+      c.var.user.id,
+      c.req.param("id"),
+      c.req.param("messageId"),
+    );
+    if (keys.length) c.executionCtx.waitUntil(c.env.FILES.delete(keys));
+    c.executionCtx.waitUntil(publish(c.env, memberIds, { type: "message.updated", message }));
+    return c.json({ message });
+  })
+  .put("/:id/messages/:messageId/reactions", sameOrigin, body(reactInput), async (c) => {
+    const { message, memberIds } = await toggleReaction(
+      c.var.db,
+      c.var.user.id,
+      c.req.param("id"),
+      c.req.param("messageId"),
+      c.req.valid("json").emoji,
+    );
+    c.executionCtx.waitUntil(publish(c.env, memberIds, { type: "message.updated", message }));
+    return c.json({ message });
+  })
+  .post("/:id/uploads", sameOrigin, async (c) => {
+    // Membership first, so non-members can't probe which chats exist via type/size errors.
+    await requireMember(c.var.db, c.req.param("id"), c.var.user.id);
+    const h = c.req.header.bind(c.req);
+    const mime = (h("content-type") ?? "").split(";")[0]?.trim().toLowerCase() ?? "";
+    if (!uploadAllowed(mime))
+      throw new AppError(415, "unsupported_type", "That file type isn't supported");
+    const size = Number(h("content-length"));
+    if (!h("content-length") || !Number.isInteger(size) || size < 0)
+      throw new AppError(411, "length_required", "Content-Length is required");
+    if (size > MAX_UPLOAD_BYTES) throw new AppError(413, "too_large", "That file is too large");
+    const attachment = await createAttachment(
+      c.var.db,
+      c.env.FILES,
+      c.var.user.id,
+      c.req.param("id"),
+      {
+        name: fileName(h("x-file-name")),
+        mime,
+        size,
+        width: dimension(h("x-width")),
+        height: dimension(h("x-height")),
+      },
+      c.req.raw.body,
+    );
+    return c.json({ attachment }, 201);
   });

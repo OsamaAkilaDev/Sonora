@@ -1,4 +1,4 @@
-import type { ChatSummary, Message, MessagePage } from "@sonora/shared";
+import type { Attachment, ChatSummary, Message, MessagePage } from "@sonora/shared";
 import {
   type InfiniteData,
   infiniteQueryOptions,
@@ -76,6 +76,20 @@ export const cache = {
       list ? [chat, ...list.filter((c) => c.id !== chat.id)].sort(byRecent) : list,
     );
   },
+  /** The cached message, if loaded. */
+  getMessage(qc: QueryClient, chatId: string, id: string) {
+    return qc
+      .getQueryData<Pages>(["messages", chatId])
+      ?.pages.flatMap((p) => p.messages)
+      .find((m) => m.id === id);
+  },
+  /** Edits/deletes/reactions: replace the message, and the chat preview if it's the latest. */
+  updateMessage(qc: QueryClient, m: LocalMessage) {
+    cache.upsertMessage(qc, m);
+    qc.setQueryData<ChatSummary[]>(chatsQuery.queryKey, (list) =>
+      list?.map((c) => (c.lastMessage?.id === m.id ? { ...c, lastMessage: m } : c)),
+    );
+  },
   setRead(qc: QueryClient, chatId: string, userId: string, lastReadId: string, me: boolean) {
     qc.setQueryData<ChatSummary[]>(chatsQuery.queryKey, (list) =>
       list?.map((c) =>
@@ -94,7 +108,12 @@ export function useSendMessage(chatId: string, meId: string) {
       unwrap(
         api.chats[":id"].messages.$post({
           param: { id: chatId },
-          json: { clientId: m.clientId ?? m.id, body: m.body, replyToId: m.replyToId },
+          json: {
+            clientId: m.clientId ?? m.id,
+            body: m.body,
+            replyToId: m.replyToId,
+            attachmentIds: m.attachments.map((a) => a.id),
+          },
         }),
       ),
     onMutate: (m) => {
@@ -114,7 +133,12 @@ export function useSendMessage(chatId: string, meId: string) {
 }
 
 /** Builds the optimistic message; the clientId lets the server's echo replace it. */
-export function draftMessage(chatId: string, senderId: string, body: string, replyToId?: string) {
+export function draftMessage(
+  chatId: string,
+  senderId: string,
+  body: string,
+  opts: { replyToId?: string | null; attachments?: Attachment[] } = {},
+): LocalMessage {
   const clientId = crypto.randomUUID();
   return {
     id: `local:${clientId}`,
@@ -122,10 +146,86 @@ export function draftMessage(chatId: string, senderId: string, body: string, rep
     chatId,
     senderId,
     body,
-    replyToId: replyToId ?? null,
+    replyToId: opts.replyToId ?? null,
+    attachments: opts.attachments ?? [],
+    reactions: [],
     createdAt: Date.now(),
     editedAt: null,
-  } satisfies LocalMessage;
+    deletedAt: null,
+  };
+}
+
+/**
+ * Optimistic message mutation: apply `patch` locally at once, replace with the server's copy on
+ * success, restore the previous copy on failure.
+ */
+function useMessageMutation<V extends { id: string }>(
+  chatId: string,
+  request: (v: V) => Promise<{ message: Message }>,
+  patch: (m: LocalMessage, v: V) => LocalMessage,
+) {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: request,
+    onMutate: (v: V) => {
+      const prev = cache.getMessage(qc, chatId, v.id);
+      if (prev) cache.updateMessage(qc, patch(prev, v));
+      return { prev };
+    },
+    onSuccess: ({ message }) => cache.updateMessage(qc, message),
+    onError: (_e, _v, ctx) => {
+      if (ctx?.prev) cache.updateMessage(qc, ctx.prev);
+      play("error");
+    },
+  });
+}
+
+export const useEditMessage = (chatId: string) =>
+  useMessageMutation(
+    chatId,
+    ({ id, body }: { id: string; body: string }) =>
+      unwrap(
+        api.chats[":id"].messages[":messageId"].$patch({
+          param: { id: chatId, messageId: id },
+          json: { body },
+        }),
+      ),
+    (m, { body }) => ({ ...m, body, editedAt: Date.now() }),
+  );
+
+export const useDeleteMessage = (chatId: string) =>
+  useMessageMutation(
+    chatId,
+    ({ id }: { id: string }) =>
+      unwrap(
+        api.chats[":id"].messages[":messageId"].$delete({ param: { id: chatId, messageId: id } }),
+      ),
+    (m) => ({ ...m, body: "", attachments: [], reactions: [], deletedAt: Date.now() }),
+  );
+
+/** Toggles my reaction; the optimistic patch mirrors the server's rule. */
+export const useToggleReaction = (chatId: string, meId: string) =>
+  useMessageMutation(
+    chatId,
+    ({ id, emoji }: { id: string; emoji: string }) =>
+      unwrap(
+        api.chats[":id"].messages[":messageId"].reactions.$put({
+          param: { id: chatId, messageId: id },
+          json: { emoji },
+        }),
+      ),
+    (m, { emoji }) => ({ ...m, reactions: toggleReaction(m.reactions, emoji, meId) }),
+  );
+
+export function toggleReaction(list: Message["reactions"], emoji: string, meId: string) {
+  const r = list.find((x) => x.emoji === emoji);
+  if (!r) return [...list, { emoji, userIds: [meId] }];
+  const userIds = r.userIds.includes(meId)
+    ? r.userIds.filter((u) => u !== meId)
+    : [...r.userIds, meId];
+  return userIds.length
+    ? list.map((x) => (x.emoji === emoji ? { ...x, userIds } : x))
+    : list.filter((x) => x.emoji !== emoji);
 }
 
 export function useMarkRead(chatId: string, meId: string) {

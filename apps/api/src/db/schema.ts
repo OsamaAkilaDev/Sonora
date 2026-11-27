@@ -104,6 +104,7 @@ export const messages = sqliteTable(
     replyToId: text("reply_to_id"),
     createdAt: ms("created_at").notNull(),
     editedAt: ms("edited_at"),
+    deletedAt: ms("deleted_at"),
   },
   (t) => [
     index("messages_chat_idx").on(t.chatId, t.id),
@@ -111,7 +112,47 @@ export const messages = sqliteTable(
   ],
 );
 
+/** One row per (message, user, emoji): a user can add several different emoji. */
+export const reactions = sqliteTable(
+  "reactions",
+  {
+    messageId: text("message_id")
+      .notNull()
+      .references(() => messages.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    emoji: text("emoji").notNull(),
+    createdAt: ms("created_at").notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.messageId, t.userId, t.emoji] })],
+);
+
+/** Uploaded first (messageId null), then claimed by the message that sends it. Bytes live in R2. */
+export const attachments = sqliteTable(
+  "attachments",
+  {
+    id: text("id").primaryKey(),
+    chatId: text("chat_id")
+      .notNull()
+      .references(() => chats.id, { onDelete: "cascade" }),
+    uploaderId: text("uploader_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    messageId: text("message_id").references(() => messages.id, { onDelete: "cascade" }),
+    r2Key: text("r2_key").notNull(),
+    name: text("name").notNull(),
+    mime: text("mime").notNull(),
+    size: integer("size").notNull(),
+    width: integer("width"),
+    height: integer("height"),
+    createdAt: ms("created_at").notNull(),
+  },
+  (t) => [index("attachments_message_idx").on(t.messageId)],
+);
+
 export type User = typeof users.$inferSelect;
 export type Session = typeof sessions.$inferSelect;
 export type Chat = typeof chats.$inferSelect;
 export type MessageRow = typeof messages.$inferSelect;
+export type AttachmentRow = typeof attachments.$inferSelect;

@@ -18,6 +18,7 @@
     "bindings": [{ "name": "USER_HUB", "class_name": "UserHub" }]
   },
   "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserHub"] }],
+  "r2_buckets": [{ "binding": "FILES", "bucket_name": "sonora-files" }],
   "d1_databases": [
     {
       "binding": "DB",

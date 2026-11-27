@@ -21,17 +21,39 @@ export type FriendRequest = {
   createdAt: number;
 };
 
+export type Attachment = {
+  id: string;
+  name: string;
+  mime: string;
+  size: number;
+  /** Known for images/video so the layout reserves space before the file loads. */
+  width: number | null;
+  height: number | null;
+  /** Same-origin, membership-checked: /api/files/:id */
+  url: string;
+};
+
+export type Reaction = { emoji: string; userIds: string[] };
+
 export type Message = {
   id: string; // ULID: time-sortable, doubles as the pagination cursor
   chatId: string;
   senderId: string;
   /** Client-generated id for optimistic sends; lets the sender merge the echo. */
   clientId: string | null;
+  /** Empty for deleted messages, or attachment-only ones. */
   body: string;
   replyToId: string | null;
+  attachments: Attachment[];
+  /** In first-reacted order. */
+  reactions: Reaction[];
   createdAt: number;
   editedAt: number | null;
+  /** Soft delete: the message stays as a tombstone ("Message deleted") so threads keep their shape. */
+  deletedAt: number | null;
 };
+
+export type SearchHit = { message: Message; chatId: string };
 
 export type ChatSummary = {
   id: string;
@@ -54,6 +76,8 @@ export type MessagePage = { messages: Message[]; nextCursor: string | null };
 /** Server → client over /api/ws. */
 export type ServerEvent =
   | { type: "message.new"; message: Message }
+  /** Edits, deletes and reaction changes all ship the whole message. */
+  | { type: "message.updated"; message: Message }
   | { type: "chat.new"; chat: ChatSummary }
   | { type: "typing"; chatId: string; userId: string }
   | { type: "read"; chatId: string; userId: string; lastReadId: string }
@@ -71,11 +95,43 @@ export const PAGE_SIZE = 50;
 
 export const friendRequestInput = z.object({ username });
 
-export const sendMessageInput = z.object({
-  clientId: z.string().min(10).max(40),
-  body: z.string().trim().min(1, "Write something first").max(MESSAGE_MAX),
-  replyToId: z.string().max(40).nullish(),
+export const MAX_ATTACHMENTS = 10;
+export const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
+/** Upload allowlist: exact types, or a family prefix ending in "/". */
+export const UPLOAD_TYPES = [
+  "image/",
+  "video/mp4",
+  "video/webm",
+  "audio/",
+  "application/pdf",
+  "text/plain",
+  "application/zip",
+];
+/** SVG is excluded: it's a document that can carry scripts, not a picture. */
+export const uploadAllowed = (mime: string) =>
+  mime !== "image/svg+xml" &&
+  UPLOAD_TYPES.some((t) => (t.endsWith("/") ? mime.startsWith(t) : mime === t));
+
+export const sendMessageInput = z
+  .object({
+    clientId: z.string().min(10).max(40),
+    body: z.string().trim().max(MESSAGE_MAX),
+    replyToId: z.string().max(40).nullish(),
+    attachmentIds: z.array(z.string().max(40)).max(MAX_ATTACHMENTS).default([]),
+  })
+  .refine((m) => m.body.length > 0 || m.attachmentIds.length > 0, {
+    message: "Write something first",
+    path: ["body"],
+  });
+
+export const editMessageInput = z.object({
+  body: z.string().trim().min(1, "A message can't be empty").max(MESSAGE_MAX),
 });
+
+/** One emoji (allowing modifiers/ZWJ sequences); 32 chars caps flag/family sequences. */
+export const reactInput = z.object({ emoji: z.string().min(1).max(32) });
+
+export const searchQuery = z.object({ q: z.string().trim().min(2).max(100) });
 
 export const createGroupInput = z.object({
   name: z.string().trim().min(1, "Name the group").max(50),

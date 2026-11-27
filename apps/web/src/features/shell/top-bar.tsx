@@ -1,4 +1,4 @@
-import { CaretDown, GearSix, SignOut } from "@phosphor-icons/react";
+import { CaretDown, GearSix, MagnifyingGlass, SignOut } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { Avatar } from "../../ui/avatar";
@@ -7,6 +7,7 @@ import { Logo } from "../../ui/logo";
 import { Menu, MenuItem, MenuSeparator } from "../../ui/menu";
 import { meQuery, useLogout } from "../auth/queries";
 import { useConnection } from "../realtime/socket";
+import { useSwitcher } from "../switcher/switcher";
 
 const statusLabel = {
   online: "Online",
@@ -52,6 +53,18 @@ export function TopBar() {
         </MenuItem>
       </Menu>
 
+      <button
+        type="button"
+        onClick={() => useSwitcher.getState().set(true)}
+        aria-label="Search or jump to (Ctrl K)"
+        className="mx-auto flex h-[34px] w-[min(440px,40vw)] items-center gap-2 rounded-full bg-inset pr-1.5 pl-3.5 text-sm text-ash transition-[background-color,box-shadow] duration-150 hover:bg-panel hover:shadow-[inset_0_0_0_1px_var(--line)] max-md:mr-0 max-md:ml-auto max-md:w-auto max-md:pr-2.5 max-md:pl-2.5"
+      >
+        <MagnifyingGlass aria-hidden className="text-base" />
+        <span className="max-md:hidden">Search or jump to…</span>
+        <kbd className="ml-auto rounded-md bg-panel px-1.5 py-0.5 font-mono text-[11px] text-slate shadow-[0_0_0_1px_var(--line)] max-md:hidden">
+          Ctrl K
+        </kbd>
+      </button>
       <ConnectionPill />
       <div className="ml-auto flex items-center gap-0.5">
         <IconButton
@@ -74,7 +87,7 @@ function ConnectionPill() {
   return (
     <span
       role="status"
-      className="ml-auto flex h-7 items-center gap-2 rounded-full bg-inset px-3 text-[12.5px] font-medium text-slate"
+      className="flex h-7 shrink-0 items-center gap-2 rounded-full bg-inset px-3 text-[12.5px] font-medium text-slate"
     >
       <span
         className={`size-1.5 rounded-full ${state === "offline" ? "bg-ash" : "animate-pulse bg-amber"}`}

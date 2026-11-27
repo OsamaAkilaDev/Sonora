@@ -1,4 +1,4 @@
-import type { ChatSummary, Me } from "@sonora/shared";
+import type { ChatSummary, Me, Message } from "@sonora/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useParams } from "@tanstack/react-router";
 import * as m from "motion/react-m";
@@ -113,7 +113,7 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
               typing.length ? "text-cyan-ink" : unread ? "text-ink-2" : "text-slate",
             )}
           >
-            {typing.length ? "typing…" : last ? sender + last.body : "Say hello"}
+            {typing.length ? "typing…" : last ? sender + previewText(last) : "Say hello"}
           </span>
           {unread && (
             <span className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-cyan px-1.5 text-[11.5px] leading-none font-semibold text-white tabular-nums">
@@ -124,6 +124,17 @@ function ChatRow({ chat, me, active }: { chat: ChatSummary; me: Me; active: bool
       </div>
     </Link>
   );
+}
+
+/** What a message looks like in one line of the chat list. */
+export function previewText(m: Message) {
+  if (m.deletedAt) return "Message deleted";
+  if (m.body) return m.body;
+  const images = m.attachments.filter((a) => a.mime.startsWith("image/")).length;
+  if (images === m.attachments.length) return images === 1 ? "Photo" : `${images} photos`;
+  return m.attachments.length === 1
+    ? (m.attachments[0]?.name ?? "File")
+    : `${m.attachments.length} files`;
 }
 
 const nameOf = (chat: ChatSummary, id: string) =>

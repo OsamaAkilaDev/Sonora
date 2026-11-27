@@ -30,6 +30,9 @@ export function useRealtime(meId: string) {
           }
           break;
         }
+        case "message.updated":
+          cache.updateMessage(qc, e.message);
+          break;
         case "chat.new":
           cache.addChat(qc, e.chat);
           break;

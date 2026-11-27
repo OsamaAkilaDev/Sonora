@@ -4,8 +4,10 @@ import { type AppEnv, withDb } from "./core/app";
 import { onError } from "./core/errors";
 import { authRoutes } from "./modules/auth/auth.routes";
 import { chatsRoutes } from "./modules/chats/chats.routes";
+import { filesRoutes } from "./modules/files/files.routes";
 import { friendsRoutes } from "./modules/friends/friends.routes";
 import { realtimeRoutes } from "./modules/realtime/realtime.routes";
+import { searchRoutes } from "./modules/search/search.routes";
 
 const headers = secureHeaders();
 
@@ -18,6 +20,8 @@ const app = new Hono<AppEnv>()
   .route("/auth", authRoutes)
   .route("/friends", friendsRoutes)
   .route("/chats", chatsRoutes)
+  .route("/files", filesRoutes)
+  .route("/search", searchRoutes)
   .route("/ws", realtimeRoutes);
 
 app.onError(onError);

@@ -1,33 +1,21 @@
-import {
-  ArrowDown,
-  CaretLeft,
-  Check,
-  Checks,
-  PaperPlaneRight,
-  WarningCircle,
-} from "@phosphor-icons/react";
+import { ArrowDown, CaretLeft } from "@phosphor-icons/react";
 import type { ChatSummary, Me } from "@sonora/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Link } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
-import { type KeyboardEvent, useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "../../lib/cx";
-import { clock, dayLabel, shortClock } from "../../lib/format";
+import { dayLabel } from "../../lib/format";
 import { Avatar } from "../../ui/avatar";
 import { meQuery } from "../auth/queries";
-import { announceTyping, useTypingIn } from "../realtime/typing";
+import { useTypingIn } from "../realtime/typing";
 import { EmptyState } from "../shell/empty-state";
 import { presenceLabel } from "../social/friend-list";
 import { chatTitle, GroupAvatar, peerOf } from "./chat-list";
-import {
-  chatsQuery,
-  draftMessage,
-  type LocalMessage,
-  messagesQuery,
-  useMarkRead,
-  useSendMessage,
-} from "./queries";
+import { Composer } from "./composer";
+import { MessageLine, type Receipt } from "./message-line";
+import { chatsQuery, type LocalMessage, messagesQuery, useMarkRead } from "./queries";
 
 const GROUP_GAP = 5 * 60_000;
 
@@ -53,7 +41,7 @@ export function ChatView({ chatId }: { chatId: string }) {
     <div className="flex h-full flex-col">
       <Header chat={chat} me={me} />
       <Feed chat={chat} me={me} />
-      <Composer chat={chat} me={me} />
+      <ChatComposer chat={chat} me={me} />
     </div>
   );
 }
@@ -106,16 +94,13 @@ type Item =
   | { kind: "msg"; key: string; msg: LocalMessage; head: boolean };
 
 function Feed({ chat, me }: { chat: ChatSummary; me: Me }) {
-  const q = useInfiniteQuery(messagesQuery(chat.id));
+  const { q, msgs } = useChatMessages(chat.id);
   const scroller = useRef<HTMLDivElement>(null);
   const sentinel = useRef<HTMLDivElement>(null);
   const [away, setAway] = useState(false);
   const markRead = useMarkRead(chat.id, me.id);
 
-  const msgs = useMemo(
-    () => (q.data ? [...q.data.pages].reverse().flatMap((p) => p.messages) : []),
-    [q.data],
-  );
+  const byId = useMemo(() => new Map(msgs.map((x) => [x.id, x])), [msgs]);
 
   const items = useMemo(() => {
     const out: Item[] = [];
@@ -169,7 +154,7 @@ function Feed({ chat, me }: { chat: ChatSummary; me: Me }) {
   const last = msgs[msgs.length - 1];
   const peerRead = peer ? chat.readBy[peer.id] : null;
   const receipt: Receipt | undefined =
-    peer && last?.senderId === me.id && !last.local
+    peer && last?.senderId === me.id && !last.local && !last.deletedAt
       ? peerRead && peerRead >= last.id
         ? "seen"
         : "sent"
@@ -203,10 +188,12 @@ function Feed({ chat, me }: { chat: ChatSummary; me: Me }) {
             ) : (
               <MessageLine
                 key={it.key}
-                item={it}
+                msg={it.msg}
+                head={it.head}
                 chat={chat}
                 me={me}
                 receipt={it.msg === last ? receipt : undefined}
+                replyTo={it.msg.replyToId ? byId.get(it.msg.replyToId) : undefined}
               />
             ),
           )}
@@ -231,82 +218,6 @@ function Feed({ chat, me }: { chat: ChatSummary; me: Me }) {
   );
 }
 
-const EMOJI_ONLY = /^(?:\p{Extended_Pictographic}|\p{Emoji_Component}|\s)+$/u;
-const isBigEmoji = (s: string) => EMOJI_ONLY.test(s) && [...s.replace(/\s/g, "")].length <= 6;
-
-type Receipt = "sent" | "seen";
-
-function MessageLine({
-  item,
-  chat,
-  me,
-  receipt,
-}: {
-  item: Extract<Item, { kind: "msg" }>;
-  receipt?: Receipt;
-  chat: ChatSummary;
-  me: Me;
-}) {
-  const { msg, head } = item;
-  const sender = chat.members.find((u) => u.id === msg.senderId);
-  const send = useSendMessage(chat.id, me.id);
-  const fresh = Date.now() - msg.createdAt < 4000; // only brand-new lines animate in
-
-  return (
-    <m.div
-      initial={fresh ? { opacity: 0, y: 8 } : false}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22, ease: "easeOut" }}
-      className={cx(
-        "group relative grid grid-cols-[40px_minmax(0,1fr)] gap-x-3 rounded-lg px-2.5 transition-colors duration-100 hover:bg-hover",
-        head ? "mt-2 pt-1.5 pb-0.5" : "py-0.5",
-      )}
-    >
-      {head ? (
-        <Avatar seed={sender?.avatarSeed ?? msg.senderId} size={40} className="mt-0.5" />
-      ) : (
-        <time
-          title={clock(msg.createdAt)}
-          className="pt-[3px] text-right text-[10.5px] whitespace-nowrap text-ash tabular-nums opacity-0 group-hover:opacity-100"
-        >
-          {shortClock(msg.createdAt)}
-        </time>
-      )}
-      <div className="min-w-0">
-        {head && (
-          <p className="flex items-baseline gap-2">
-            <span className="text-[14.5px] font-semibold">{sender?.username ?? "someone"}</span>
-            <time className="text-[11.5px] text-ash tabular-nums">{clock(msg.createdAt)}</time>
-          </p>
-        )}
-        <p
-          className={cx(
-            "max-w-[68ch] break-words whitespace-pre-wrap",
-            isBigEmoji(msg.body) ? "text-[34px] leading-tight" : "text-[15px]",
-            msg.local === "sending" && "text-ash",
-            msg.local === "failed" && "text-red",
-          )}
-        >
-          {msg.body}
-        </p>
-        {receipt && <ReceiptLine receipt={receipt} />}
-        {msg.local === "failed" && (
-          <p className="flex items-center gap-1.5 text-[12px] text-red">
-            <WarningCircle aria-hidden /> Not sent ·
-            <button
-              type="button"
-              onClick={() => send.mutate(msg)}
-              className="font-medium underline-offset-2 hover:underline"
-            >
-              Retry
-            </button>
-          </p>
-        )}
-      </div>
-    </m.div>
-  );
-}
-
 function ChatIntro({ chat, me }: { chat: ChatSummary; me: Me }) {
   const peer = peerOf(chat, me.id);
   return (
@@ -324,87 +235,6 @@ function ChatIntro({ chat, me }: { chat: ChatSummary; me: Me }) {
           ? `This is the beginning of your conversation with ${peer.username}.`
           : `The start of ${chat.name ?? "this group"}. ${chat.members.length} members.`}
       </p>
-    </div>
-  );
-}
-
-const DRAFT = (chatId: string) => `sonora-draft:${chatId}`;
-
-function Composer({ chat, me }: { chat: ChatSummary; me: Me }) {
-  const ta = useRef<HTMLTextAreaElement>(null);
-  const send = useSendMessage(chat.id, me.id);
-  const [text, setText] = useState(() => {
-    try {
-      return localStorage.getItem(DRAFT(chat.id)) ?? "";
-    } catch {
-      return "";
-    }
-  });
-
-  // Grow with content up to a cap; persist the draft per chat.
-  useEffect(() => {
-    const el = ta.current;
-    if (el) {
-      el.style.height = "auto";
-      el.style.height = `${Math.min(el.scrollHeight, 180)}px`;
-    }
-    try {
-      if (text) localStorage.setItem(DRAFT(chat.id), text);
-      else localStorage.removeItem(DRAFT(chat.id));
-    } catch {}
-  }, [text, chat.id]);
-
-  useEffect(() => {
-    // Phones: don't pop the keyboard on open. Desktop: ready to type.
-    if (matchMedia("(pointer: fine)").matches) ta.current?.focus({ preventScroll: true });
-  }, []);
-
-  function submit() {
-    const body = text.trim();
-    if (!body) return;
-    send.mutate(draftMessage(chat.id, me.id, body));
-    setText("");
-  }
-
-  function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
-    if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-      e.preventDefault();
-      submit();
-    }
-  }
-
-  const ready = !!text.trim();
-  const peer = peerOf(chat, me.id);
-  return (
-    <div className="px-3 pt-1 pb-[max(12px,env(safe-area-inset-bottom))]">
-      <div className="flex items-end gap-1 rounded-[20px] bg-panel p-1.5 shadow-[inset_0_0_0_1px_var(--line)] transition-shadow duration-150 focus-within:shadow-[inset_0_0_0_1px_color-mix(in_oklab,var(--cyan)_60%,var(--line)),0_0_0_3px_color-mix(in_oklab,var(--cyan)_12%,transparent)]">
-        <textarea
-          ref={ta}
-          rows={1}
-          value={text}
-          onChange={(e) => {
-            setText(e.target.value);
-            if (e.target.value) announceTyping(chat.id);
-          }}
-          onKeyDown={onKeyDown}
-          maxLength={4000}
-          placeholder={`Message ${peer ? peer.username : (chat.name ?? "the group")}`}
-          aria-label="Message"
-          className="max-h-[180px] min-h-8 flex-1 resize-none bg-transparent px-2.5 py-[5px] leading-[1.45] outline-none"
-        />
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!ready}
-          aria-label="Send message"
-          className={cx(
-            "grid size-8 shrink-0 place-items-center rounded-full text-base transition-[background-color,color,scale] duration-150 enabled:active:scale-[0.96]",
-            ready ? "bg-ink text-on-ink" : "bg-inset text-ash",
-          )}
-        >
-          <PaperPlaneRight weight="fill" />
-        </button>
-      </div>
     </div>
   );
 }
@@ -443,25 +273,17 @@ function ViewSkeleton() {
   );
 }
 
-/** Sits under the message text, so it reads as part of the message. Sent → Seen cross-fades. */
-function ReceiptLine({ receipt }: { receipt: Receipt }) {
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <m.p
-        key={receipt}
-        initial={{ opacity: 0, y: 2 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.18, ease: "easeOut" }}
-        className="mt-0.5 flex items-center gap-1 text-[11.5px] text-ash"
-      >
-        {receipt === "seen" ? (
-          <Checks weight="bold" className="text-cyan-ink" />
-        ) : (
-          <Check weight="bold" />
-        )}
-        {receipt === "seen" ? "Seen" : "Sent"}
-      </m.p>
-    </AnimatePresence>
+/** One flattened, oldest-first message list shared by the feed and the composer. */
+function useChatMessages(chatId: string) {
+  const q = useInfiniteQuery(messagesQuery(chatId));
+  const msgs = useMemo(
+    () => (q.data ? [...q.data.pages].reverse().flatMap((p) => p.messages) : []),
+    [q.data],
   );
+  return { q, msgs };
+}
+
+function ChatComposer({ chat, me }: { chat: ChatSummary; me: Me }) {
+  const { msgs } = useChatMessages(chat.id);
+  return <Composer chat={chat} me={me} messages={msgs} />;
 }

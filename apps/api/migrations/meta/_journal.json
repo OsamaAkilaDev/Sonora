@@ -15,6 +15,20 @@
       "when": 1795762414181,
       "tag": "0001_social",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1795775078185,
+      "tag": "0002_messaging",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1795775079058,
+      "tag": "0003_search",
+      "breakpoints": true
     }
   ]
 }

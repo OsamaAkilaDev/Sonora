@@ -8,6 +8,7 @@ import { Logo } from "../../ui/logo";
 import { meQuery } from "../auth/queries";
 import { useRealtime } from "../realtime/use-realtime";
 import { SettingsDialog } from "../settings/settings-dialog";
+import { Switcher } from "../switcher/switcher";
 import { Rail } from "./rail";
 import { TopBar } from "./top-bar";
 
@@ -37,6 +38,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <>
       {intro && <Intro />}
       <SettingsDialog />
+      <Switcher />
       <div
         className={cx(
           "fixed inset-0 grid gap-2 p-2 pt-[max(8px,env(safe-area-inset-top))] pb-[max(8px,env(safe-area-inset-bottom))]",
