@@ -3,9 +3,12 @@ import { play, type SoundName } from "../../lib/sound";
 import { notify } from "../../ui/toast";
 import { canShareScreen, deviceError, openCamera, openMic, useDevicePrefs } from "./devices";
 import { watchSpeaking } from "./meter";
-import { calls, idle, type Remote, useCall } from "./store";
+import { calls, idle, type Remote, type SessionState, useCall } from "./store";
 
-type Kind = "audio" | "video";
+/** One transceiver per slot, always in this order, so both sides know which video is which. */
+const SLOTS = ["audio", "camera", "screen"] as const;
+type Slot = (typeof SLOTS)[number];
+const remoteKey = { audio: "audio", camera: "cameraTrack", screen: "screenTrack" } as const;
 type Peer = {
   pc: RTCPeerConnection;
   /** Signals are applied one at a time, in arrival order. */
@@ -101,7 +104,7 @@ class Session {
       track.contentHint = "detail"; // keep text sharp over smooth motion
       track.onended = () => this.stopScreen(); // the browser's own "Stop sharing" button
       this.screen = track;
-      await this.sendVideo();
+      await this.sendVideo("screen");
     });
 
   leave() {
@@ -133,7 +136,7 @@ class Session {
     this.stopMicMeter = watchSpeaking(track, (on) =>
       this.setSpeaking(this.meId, on && track.enabled),
     );
-    await this.replace("audio", track);
+    await this.replace("audio");
   }
 
   private async setCamera(on: boolean) {
@@ -153,37 +156,43 @@ class Session {
     }
     this.cam?.stop();
     this.cam = next;
-    await this.sendVideo();
+    await this.sendVideo("camera");
   }
 
   private stopScreen() {
     this.screen?.stop();
     this.screen = null;
-    void this.sendVideo();
+    void this.sendVideo("screen");
   }
 
-  /** A screen share takes the camera's place; the camera returns when sharing stops. */
-  private async sendVideo() {
+  private async sendVideo(slot: "camera" | "screen") {
     if (this.closed) return;
-    const track = this.screen ?? this.cam;
-    this.patchMedia({ camera: !!this.cam, screen: !!this.screen }, { preview: track });
-    await this.replace("video", track);
+    this.patchMedia(
+      { camera: !!this.cam, screen: !!this.screen },
+      { cameraTrack: this.cam, screenTrack: this.screen },
+    );
+    await this.replace(slot);
   }
 
-  private async replace(kind: Kind, track: MediaStreamTrack | null) {
+  private outgoing(slot: Slot) {
+    return slot === "audio" ? this.mic : slot === "camera" ? this.cam : this.screen;
+  }
+
+  private async replace(slot: Slot) {
     await Promise.all(
       [...this.peers.values()].map(({ pc }) =>
-        pc
-          .getTransceivers()
-          .find((t) => t.receiver.track.kind === kind)
-          ?.sender.replaceTrack(track),
+        this.sender(pc, slot)?.replaceTrack(this.outgoing(slot)),
       ),
     );
   }
 
+  private sender(pc: RTCPeerConnection, slot: Slot) {
+    return pc.getTransceivers()[SLOTS.indexOf(slot)]?.sender;
+  }
+
   private patchMedia(
     media: Partial<{ muted: boolean; camera: boolean; screen: boolean }>,
-    local: { preview?: MediaStreamTrack | null } = {},
+    local: Partial<Pick<SessionState, "cameraTrack" | "screenTrack">> = {},
   ) {
     if (this.closed) return;
     useCall.setState({ ...media, ...local, ...(this.mic ? {} : { muted: true }) });
@@ -292,10 +301,11 @@ class Session {
       if (e.candidate)
         this.send({ type: "signal", to: id, signal: { candidate: e.candidate.toJSON() } });
     };
-    pc.ontrack = ({ track }) => {
-      const kind = track.kind as Kind;
-      this.patchPeer(id, { [kind]: track });
-      if (kind === "audio") {
+    pc.ontrack = ({ track, transceiver }) => {
+      const slot = SLOTS[pc.getTransceivers().indexOf(transceiver)];
+      if (!slot) return;
+      this.patchPeer(id, { [remoteKey[slot]]: track });
+      if (slot === "audio") {
         peer.stopMeter?.();
         peer.stopMeter = watchSpeaking(track, (on) => this.setSpeaking(info.userId, on));
       }
@@ -314,8 +324,10 @@ class Session {
         await pc.setLocalDescription();
         this.sendDescription(id, pc);
       };
-      pc.addTransceiver(this.mic ?? "audio", { direction: "sendrecv" });
-      pc.addTransceiver(this.screen ?? this.cam ?? "video", { direction: "sendrecv" });
+      for (const slot of SLOTS) {
+        const kind = slot === "audio" ? "audio" : "video";
+        pc.addTransceiver(this.outgoing(slot) ?? kind, { direction: "sendrecv" });
+      }
     }
   }
 
@@ -327,10 +339,11 @@ class Session {
     await pc.setRemoteDescription(signal.description);
     if (signal.description.type !== "offer") return;
     // Answering: send our tracks on the transceivers the offer created.
-    for (const t of pc.getTransceivers()) {
+    for (const [i, t] of pc.getTransceivers().entries()) {
+      const slot = SLOTS[i];
+      if (!slot) continue;
       t.direction = "sendrecv";
-      const kind = t.receiver.track.kind;
-      await t.sender.replaceTrack(kind === "audio" ? this.mic : (this.screen ?? this.cam));
+      await t.sender.replaceTrack(this.outgoing(slot));
     }
     await pc.setLocalDescription();
     this.sendDescription(id, pc);
@@ -348,13 +361,16 @@ class Session {
 
   /** In a mesh you upload one copy per person, so each copy shrinks as the call grows. */
   private limitBitrate() {
-    const maxBitrate = this.peers.size > 1 ? 600_000 : 1_800_000;
+    const group = this.peers.size > 1;
+    const limits = { camera: group ? 500_000 : 1_500_000, screen: group ? 1_200_000 : 2_500_000 };
     for (const { pc } of this.peers.values()) {
-      const sender = pc.getTransceivers().find((t) => t.receiver.track.kind === "video")?.sender;
-      const params = sender?.getParameters();
-      if (!sender || !params?.encodings?.length) continue;
-      for (const e of params.encodings) e.maxBitrate = maxBitrate;
-      void sender.setParameters(params).catch(() => {});
+      for (const slot of ["camera", "screen"] as const) {
+        const sender = this.sender(pc, slot);
+        const params = sender?.getParameters();
+        if (!sender || !params?.encodings?.length) continue;
+        for (const e of params.encodings) e.maxBitrate = limits[slot];
+        void sender.setParameters(params).catch(() => {});
+      }
     }
   }
 

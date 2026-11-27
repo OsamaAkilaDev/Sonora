@@ -47,7 +47,8 @@ export const calls = {
 export type Remote = CallPeer & {
   connection: RTCPeerConnectionState;
   audio?: MediaStreamTrack;
-  video?: MediaStreamTrack;
+  cameraTrack?: MediaStreamTrack;
+  screenTrack?: MediaStreamTrack;
 };
 
 export type SessionState = {
@@ -59,8 +60,9 @@ export type SessionState = {
   muted: boolean;
   camera: boolean;
   screen: boolean;
-  /** What you're sending as video: your camera, or the shared screen. */
-  preview: MediaStreamTrack | null;
+  /** Your own tracks, for the previews. */
+  cameraTrack: MediaStreamTrack | null;
+  screenTrack: MediaStreamTrack | null;
   peers: Record<string, Remote>;
   /** User ids currently talking. */
   speaking: Record<string, boolean>;
@@ -76,7 +78,8 @@ export const idle: SessionState = {
   muted: false,
   camera: false,
   screen: false,
-  preview: null,
+  cameraTrack: null,
+  screenTrack: null,
   peers: {},
   speaking: {},
   minimized: false,

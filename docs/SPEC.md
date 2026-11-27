@@ -117,7 +117,7 @@ Errors: one handler maps everything to `{ error: { code, message } }` with corre
 - **Rules:** hanging up ends a one-to-one call for both sides; a dropped connection keeps it open 30s for a rejoin. Group calls last while anyone is in them. One seat per person: joining from another device moves the call.
 - **WebRTC behavior:**
   - Whoever joins later makes the offers, so there is never offer glare. Only the offerer restarts ICE.
-  - Mute, camera, screen share and device switching swap the outgoing track in place, with no renegotiation. A screen share takes the camera's place.
+  - Three fixed transceivers (audio, camera, screen), so camera and screen share run together. Mute, camera, screen and device switching swap tracks in place, with no renegotiation.
   - Speaking detection runs on an `AnalyserNode`; noise suppression, echo cancellation and auto gain are the browser's audio constraints.
 - **ICE:** Cloudflare STUN only. No TURN (Cloudflare's needs a card on the account), so strict firewalls and some mobile networks can't connect; the tile says so. Add a provider by extending `ICE_SERVERS` with API-minted credentials.
 - **While you browse:** a mini call card in the side rail (desktop) or a slim bar under the top bar (phones). Incoming calls ring wherever you are.
