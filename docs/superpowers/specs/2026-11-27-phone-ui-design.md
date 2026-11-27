@@ -48,18 +48,18 @@ PRODUCT.md and SPEC §9a hold: WCAG 2.2 AA, reduced motion, Phosphor icons, exis
 
 ## Screens
 
-| Screen | Phone behaviour |
-|---|---|
-| Chats | Header with search and new group. Rows about 72px. Notification prompt sits above the list. "Reconnecting…" / "Offline" replaces the title (in a chat, the status line). |
-| Chat | One header: back, avatar, name, status, call buttons. Rows stay. |
-| Composer | Return adds a line; the button sends and keeps the keyboard open. 16px text (stops iOS zoom). |
-| Message actions | Long press opens a bottom sheet: reactions, Reply, Edit, Copy, Delete. Swipe a message left to reply. |
-| Friends | Add by username on top, then Requests, Online, Offline. ⋯ opens a sheet; removing asks to confirm. |
-| You | Profile, then rows: Account, Sessions, Voice & video, Sounds & alerts, Appearance, Sign out. Each opens a full page (`?settings=`). |
-| Search | Full screen, Cancel button, no keyboard hints. |
-| New group | Full screen, Create in the header. |
-| Call | Covers everything, 56px controls at the bottom, chevron minimizes to a top bar that shows on every screen. |
-| Incoming call | Full screen: caller large, Decline and Answer at the bottom. |
+| Screen          | Phone behaviour                                                                                                                                                          |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Chats           | Header with search and new group. Rows about 72px. Notification prompt sits above the list. "Reconnecting…" / "Offline" replaces the title (in a chat, the status line). |
+| Chat            | One header: back, avatar, name, status, call buttons. Rows stay.                                                                                                         |
+| Composer        | Return adds a line; the button sends and keeps the keyboard open. 16px text (stops iOS zoom).                                                                            |
+| Message actions | Long press opens a bottom sheet: reactions, Reply, Edit, Copy, Delete. Swipe a message left to reply.                                                                    |
+| Friends         | Add by username on top, then Requests, Online, Offline. ⋯ opens a sheet; removing asks to confirm.                                                                       |
+| You             | Profile, then rows: Account, Sessions, Voice & video, Sounds & alerts, Appearance, Sign out. Each opens a full page (`?settings=`).                                      |
+| Search          | Full screen, Cancel button, no keyboard hints.                                                                                                                           |
+| New group       | Full screen, Create in the header.                                                                                                                                       |
+| Call            | Covers everything, 56px controls at the bottom, chevron minimizes to a top bar that shows on every screen.                                                               |
+| Incoming call   | Full screen: caller large, Decline and Answer at the bottom.                                                                                                             |
 
 ## Everywhere
 

@@ -1,5 +1,6 @@
 import { ChatsCircle, type Icon, NotePencil, UserPlus, UsersThree } from "@phosphor-icons/react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { cx } from "../../lib/cx";
 import { IconButton } from "../../ui/button";
@@ -10,8 +11,10 @@ import { NotifyPrompt } from "../notifications/prompt";
 import { FriendList } from "../social/friend-list";
 import { socialQuery } from "../social/queries";
 import { RequestList } from "../social/request-list";
+import { useUrlTab } from "./navigation";
+import { railTab } from "./tabs";
 
-type Tab = "chats" | "friends" | "requests";
+type Tab = ReturnType<typeof railTab>;
 const tabs: { id: Tab; label: string; icon: Icon }[] = [
   { id: "chats", label: "Chats", icon: ChatsCircle },
   { id: "friends", label: "Friends", icon: UsersThree },
@@ -20,7 +23,10 @@ const tabs: { id: Tab; label: string; icon: Icon }[] = [
 
 /** Side rail. The active tab grows to show its label (kept from Sonora v1). */
 export function Rail() {
-  const [tab, setTab] = useState<Tab>("chats");
+  const tab = railTab(useUrlTab());
+  const navigate = useNavigate();
+  const setTab = (t: Tab) =>
+    navigate({ to: ".", search: (p) => ({ ...p, tab: t }), replace: true });
   const [newGroup, setNewGroup] = useState(false);
   const call = useCallElsewhere();
   const incoming =

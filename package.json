@@ -12,7 +12,7 @@
     "build": "bun --filter @sonora/web build",
     "deploy": "bun --filter @sonora/api db:migrate:remote && bun --filter @sonora/web deploy",
     "typecheck": "bun --filter '*' typecheck",
-    "test": "bun --filter @sonora/api test",
+    "test": "bun --filter '*' test",
     "lint": "biome check .",
     "fix": "biome check --write ."
   },

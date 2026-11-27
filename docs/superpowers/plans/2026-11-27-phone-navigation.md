@@ -32,10 +32,12 @@
 ### Task 1: Tab state in the URL
 
 **Files:**
+
 - Create: `apps/web/src/features/shell/tabs.ts`, `tabs.test.ts`, `navigation.ts`
 - Modify: `apps/web/src/routes/_app.tsx`, `features/shell/rail.tsx`, `apps/web/package.json`, root `package.json`
 
 **Interfaces (Produces):**
+
 - `tabs.ts`: `type Tab = "chats" | "friends" | "you"`; `type UrlTab = Tab | "requests"`; `urlTabs: UrlTab[]`; `phoneTab(t?: UrlTab): Tab`; `railTab(t?: UrlTab): "chats" | "friends" | "requests"`; `tabMove(current: Tab, next: Tab, fromChats: boolean): "top" | "push" | "replace" | "back"`
 - `navigation.ts`: `useUrlTab(): UrlTab | undefined`; `useGoTab(): (next: Tab) => "top" | void` (phone history rules; sets `state.fromChats` on push, keeps it on replace); `useBack(fallback: () => void): () => void` (`useCanGoBack()` ? `history.back()` : `fallback()`)
 
@@ -68,10 +70,12 @@ test("tab history and mapping", () => {
 ### Task 2: Phone home and bottom nav
 
 **Files:**
+
 - Create: `apps/web/src/lib/phone.ts`, `features/shell/bottom-nav.tsx`, `phone-home.tsx`, `you-screen.tsx`
 - Modify: `features/shell/app-shell.tsx`, `features/social/friend-list.tsx`, `request-list.tsx`, `features/settings/settings-dialog.tsx`, `features/realtime/socket.ts`, `features/shell/top-bar.tsx`, `ui/button.tsx`, `styles.css`
 
 **Interfaces:**
+
 - Consumes: Task 1.
 - Produces: `isPhone(): boolean`, `usePhone(): boolean` (`useSyncExternalStore` over `matchMedia`); `connectionLabel(state): "Offline" | "Reconnecting…" | null` in `socket.ts`, used by `top-bar.tsx` too
 
@@ -87,9 +91,11 @@ test("tab history and mapping", () => {
 ### Task 3: Pushed chat screen
 
 **Files:**
+
 - Modify: `features/shell/tabs.ts`, `tabs.test.ts`, `main.tsx`, `styles.css`, `features/chats/chat-view.tsx`
 
 **Interfaces:**
+
 - Consumes: `useBack`, `isPhone`, `connectionLabel`.
 - Produces: `screenMotion(from: string | undefined, to: string): "push" | "pop" | false` (pathnames; `/c/…` is one level deeper than `/`)
 
