@@ -3,6 +3,8 @@ import { createRouter, RouterProvider } from "@tanstack/react-router";
 import { LazyMotion, MotionConfig } from "motion/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { screenMotion } from "./features/shell/tabs";
+import { isPhone } from "./lib/phone";
 import { routeTree } from "./routeTree.gen";
 import "./styles.css";
 
@@ -18,6 +20,13 @@ const router = createRouter({
   defaultPreload: "intent",
   defaultPreloadStaleTime: 0, // Query owns caching
   scrollRestoration: true,
+  // Phones slide between screens. Browsers without transition types just switch.
+  defaultViewTransition: CSS.supports("selector(:active-view-transition-type(a))") && {
+    types: ({ fromLocation, toLocation }) => {
+      const motion = isPhone() && screenMotion(fromLocation?.pathname, toLocation.pathname);
+      return motion ? [motion] : false;
+    },
+  },
 });
 
 declare module "@tanstack/react-router" {

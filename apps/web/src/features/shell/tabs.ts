@@ -14,3 +14,11 @@ export function tabMove(current: Tab, next: Tab, fromChats: boolean) {
   if (next === "chats") return fromChats ? "back" : "replace";
   return current === "chats" ? "push" : "replace";
 }
+
+const depth = (path: string) => (path.startsWith("/c/") ? 1 : 0);
+
+/** How a phone moves between two paths: a chat is a screen on top of home. */
+export function screenMotion(from: string | undefined, to: string) {
+  if (from === undefined || depth(from) === depth(to)) return false;
+  return depth(to) > depth(from) ? "push" : "pop";
+}

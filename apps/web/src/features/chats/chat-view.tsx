@@ -1,19 +1,23 @@
 import { ArrowDown, CaretLeft } from "@phosphor-icons/react";
 import type { ChatSummary, Me } from "@sonora/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence } from "motion/react";
 import * as m from "motion/react-m";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { cx } from "../../lib/cx";
 import { dayLabel } from "../../lib/format";
+import { usePhone } from "../../lib/phone";
 import { Avatar } from "../../ui/avatar";
+import { IconButton } from "../../ui/button";
 import { meQuery } from "../auth/queries";
 import { CallStage } from "../calls/call-stage";
 import { CallButtons, JoinBanner } from "../calls/chat-calls";
 import { useCall } from "../calls/store";
+import { connectionLabel, useConnection } from "../realtime/socket";
 import { useTypingIn } from "../realtime/typing";
 import { EmptyState } from "../shell/empty-state";
+import { useBack } from "../shell/navigation";
 import { presenceLabel } from "../social/friend-list";
 import { chatTitle, GroupAvatar, peerOf } from "./chat-list";
 import { Composer } from "./composer";
@@ -56,23 +60,26 @@ function Header({ chat, me }: { chat: ChatSummary; me: Me }) {
   const peer = peerOf(chat, me.id);
   const typing = useTypingIn(chat.id);
   const online = chat.members.filter((u) => u.id !== me.id && u.presence !== "offline").length;
-  const sub = typing.length
+  const navigate = useNavigate();
+  const back = useBack(() => navigate({ to: "/", search: { tab: "chats" }, replace: true }));
+  // Phones have no top bar to carry the connection pill; the status line does.
+  const phone = usePhone();
+  const down = connectionLabel(useConnection());
+  const offline = phone ? down : null;
+  const status = typing.length
     ? peer
       ? "typing…"
       : `${typing.map((id) => chat.members.find((u) => u.id === id)?.username).join(", ")} typing…`
     : peer
       ? presenceLabel(peer)
       : `${chat.members.length} members${online ? ` · ${online} online` : ""}`;
+  const sub = offline ?? status;
 
   return (
-    <header className="flex min-h-[60px] items-center gap-3 border-b border-line py-2.5 pr-3 pl-2 md:pl-3.5">
-      <Link
-        to="/"
-        aria-label="Back to chats"
-        className="grid size-8 place-items-center rounded-full text-lg text-slate hover:bg-hover hover:text-ink md:hidden"
-      >
+    <header className="flex min-h-[60px] items-center gap-3 border-b border-line py-2.5 pr-3 pl-3.5 max-md:gap-2.5 max-md:pr-1.5 max-md:pl-1">
+      <IconButton label="Back" onClick={back} className="text-[22px] max-md:size-11 md:hidden">
         <CaretLeft />
-      </Link>
+      </IconButton>
       {peer ? (
         <Avatar seed={peer.avatarSeed} size={38} status={peer.presence} />
       ) : (
@@ -85,7 +92,7 @@ function Header({ chat, me }: { chat: ChatSummary; me: Me }) {
         <p
           className={cx(
             "truncate text-[12.5px] leading-snug",
-            typing.length ? "text-cyan-ink" : "text-slate",
+            typing.length && !offline ? "text-cyan-ink" : "text-slate",
           )}
         >
           {sub}

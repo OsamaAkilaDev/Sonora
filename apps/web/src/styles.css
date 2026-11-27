@@ -314,6 +314,52 @@ body:has(input:not([type="checkbox"], [type="radio"]):focus, textarea:focus) .bo
   z-index: 1;
 }
 
+/* Phone screens (main.tsx): the one on top slides, the one under it drifts and dims. */
+@media (prefers-reduced-motion: no-preference) {
+  html:active-view-transition-type(push, pop)::view-transition-old(root),
+  html:active-view-transition-type(push, pop)::view-transition-new(root) {
+    mix-blend-mode: normal;
+    animation-duration: 0.32s;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+    animation-fill-mode: both;
+  }
+  html:active-view-transition-type(push)::view-transition-old(root) {
+    animation-name: screen-away;
+  }
+  html:active-view-transition-type(push)::view-transition-new(root) {
+    animation-name: screen-in;
+  }
+  html:active-view-transition-type(pop)::view-transition-old(root) {
+    z-index: 1;
+    animation-name: screen-out;
+  }
+  html:active-view-transition-type(pop)::view-transition-new(root) {
+    animation-name: screen-return;
+  }
+}
+@keyframes screen-in {
+  from {
+    translate: 100% 0;
+  }
+}
+@keyframes screen-out {
+  to {
+    translate: 100% 0;
+  }
+}
+@keyframes screen-away {
+  to {
+    translate: -25% 0;
+    filter: brightness(0.7);
+  }
+}
+@keyframes screen-return {
+  from {
+    translate: -25% 0;
+    filter: brightness(0.7);
+  }
+}
+
 /* Ringing: a ring that leaves the avatar. */
 .ringing {
   animation: ringing 1.6s cubic-bezier(0.2, 0, 0, 1) infinite;

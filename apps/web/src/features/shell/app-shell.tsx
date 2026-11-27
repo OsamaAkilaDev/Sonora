@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { useRouterState } from "@tanstack/react-router";
+import { useParams } from "@tanstack/react-router";
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import { type ReactNode, useState } from "react";
@@ -30,8 +30,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   usePush();
   const call = useCallElsewhere();
   const phone = usePhone();
-  // Phones show one screen at a time: home, or the open chat on top of it.
-  const inChat = useRouterState({ select: (s) => s.location.pathname.startsWith("/c/") });
+  // Phones show one screen at a time: home, or the open chat on top of it. Read from the
+  // rendered route, not the pending URL, or the slide snapshots the next layout too early.
+  const inChat = !!useParams({ strict: false }).chatId;
   const [intro] = useState(() => {
     const v = sessionStorage.getItem("sonora-intro") === "1";
     sessionStorage.removeItem("sonora-intro");
@@ -64,7 +65,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <TopBar />
         </m.div>
         {phone && call.phone && (
-          <div className="row-start-1 h-16 p-1.5">
+          <div className="row-start-1 h-16 p-1.5 [view-transition-name:callbar]">
             <CallDock variant="bar" />
           </div>
         )}
