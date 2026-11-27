@@ -8,3 +8,4 @@ dist
 .impeccable/review
 .playwright-mcp
 .claude/settings.local.json
+.impeccable/questions

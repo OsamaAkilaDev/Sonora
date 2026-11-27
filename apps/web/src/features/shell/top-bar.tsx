@@ -6,6 +6,7 @@ import { IconButton } from "../../ui/button";
 import { Logo } from "../../ui/logo";
 import { Menu, MenuItem, MenuSeparator } from "../../ui/menu";
 import { meQuery, useLogout } from "../auth/queries";
+import { useConnection } from "../realtime/socket";
 
 const statusLabel = {
   online: "Online",
@@ -51,6 +52,7 @@ export function TopBar() {
         </MenuItem>
       </Menu>
 
+      <ConnectionPill />
       <div className="ml-auto flex items-center gap-0.5">
         <IconButton
           label="Settings"
@@ -62,5 +64,22 @@ export function TopBar() {
         <Logo className="hidden h-[22px] text-cyan sm:block" />
       </div>
     </header>
+  );
+}
+
+/** Shows only when live updates are down; quiet otherwise. */
+function ConnectionPill() {
+  const state = useConnection();
+  if (state === "online") return null;
+  return (
+    <span
+      role="status"
+      className="ml-auto flex h-7 items-center gap-2 rounded-full bg-inset px-3 text-[12.5px] font-medium text-slate"
+    >
+      <span
+        className={`size-1.5 rounded-full ${state === "offline" ? "bg-ash" : "animate-pulse bg-amber"}`}
+      />
+      {state === "offline" ? "Offline" : "Reconnecting…"}
+    </span>
   );
 }

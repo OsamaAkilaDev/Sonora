@@ -16,15 +16,23 @@ export class ApiError extends Error {
   }
 }
 
-/** Await an hc call and return its JSON, or throw ApiError with the server's code and fields. */
-export async function unwrap<T>(req: Promise<{ ok: boolean; status: number; json(): Promise<T> }>) {
-  let res: Awaited<typeof req>;
+type Res = { ok: boolean; status: number; json(): Promise<unknown> };
+// Distributes over hc's per-status responses; error bodies are thrown, never returned.
+type Body<R> = R extends { json(): Promise<infer T> }
+  ? T extends { error: unknown }
+    ? never
+    : T
+  : never;
+
+/** Await an hc call: the success body (union of all 2xx shapes), or a thrown ApiError. */
+export async function unwrap<R extends Res>(req: Promise<R>): Promise<Body<R>> {
+  let res: R;
   try {
     res = await req;
   } catch {
     throw new ApiError(0, "offline", "Can't reach Sonora. Check your connection.");
   }
-  if (res.ok) return res.json();
+  if (res.ok) return res.json() as Promise<Body<R>>;
   const body = (await res.json().catch(() => null)) as ApiErrorBody | null;
   throw new ApiError(
     res.status,

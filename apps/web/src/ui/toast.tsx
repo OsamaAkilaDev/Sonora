@@ -1,8 +1,22 @@
 import { Toast } from "@base-ui/react/toast";
 import { X } from "@phosphor-icons/react";
+import { play, type SoundName } from "../lib/sound";
 
 /** Global toast manager: call `toast.add({ title, description })` from anywhere, React or not. */
 export const toast = Toast.createToastManager();
+
+const recent = new Map<string, number>();
+/**
+ * Toast keyed by what it's about. The same event can reach us twice (the mutation's response
+ * and its realtime echo); identical keys within 5s show once.
+ */
+export function notify(key: string, options: Parameters<typeof toast.add>[0], sound?: SoundName) {
+  const now = Date.now();
+  if ((recent.get(key) ?? 0) > now) return;
+  recent.set(key, now + 5000);
+  if (sound) play(sound);
+  toast.add(options);
+}
 
 export function Toaster() {
   return (

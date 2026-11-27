@@ -1,8 +1,12 @@
+import { useQuery } from "@tanstack/react-query";
+import { useRouterState } from "@tanstack/react-router";
 import { useReducedMotion } from "motion/react";
 import * as m from "motion/react-m";
 import { type ReactNode, useState } from "react";
 import { cx } from "../../lib/cx";
 import { Logo } from "../../ui/logo";
+import { meQuery } from "../auth/queries";
+import { useRealtime } from "../realtime/use-realtime";
 import { SettingsDialog } from "../settings/settings-dialog";
 import { Rail } from "./rail";
 import { TopBar } from "./top-bar";
@@ -12,6 +16,10 @@ const ease = [0.2, 0, 0, 1] as const;
 /** Floating-panel shell. First mount staggers panels in; right after sign-in a logo intro plays first. */
 export function AppShell({ children }: { children: ReactNode }) {
   const reduce = useReducedMotion();
+  const me = useQuery(meQuery).data;
+  useRealtime(me?.id ?? "");
+  // Phones show one pane at a time: the list, or the open chat.
+  const inChat = useRouterState({ select: (s) => s.location.pathname.startsWith("/c/") });
   const [intro] = useState(() => {
     const v = sessionStorage.getItem("sonora-intro") === "1";
     sessionStorage.removeItem("sonora-intro");
@@ -38,10 +46,17 @@ export function AppShell({ children }: { children: ReactNode }) {
         <m.div {...panel(0)} className="md:col-span-2">
           <TopBar />
         </m.div>
-        <m.aside {...panel(1)} aria-label="Conversations" className="panel min-h-0 overflow-hidden">
+        <m.aside
+          {...panel(1)}
+          aria-label="Conversations"
+          className={cx("panel min-h-0 overflow-hidden", inChat && "max-md:hidden")}
+        >
           <Rail />
         </m.aside>
-        <m.main {...panel(2)} className="panel hidden min-h-0 overflow-hidden md:block">
+        <m.main
+          {...panel(2)}
+          className={cx("panel min-h-0 overflow-hidden", !inChat && "max-md:hidden")}
+        >
           {children}
         </m.main>
       </div>

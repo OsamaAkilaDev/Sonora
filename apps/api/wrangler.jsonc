@@ -12,6 +12,10 @@
   "ratelimits": [
     { "name": "AUTH_LIMITER", "namespace_id": "1001", "simple": { "limit": 10, "period": 60 } }
   ],
+  "durable_objects": {
+    "bindings": [{ "name": "USER_HUB", "class_name": "UserHub" }]
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["UserHub"] }],
   "d1_databases": [
     {
       "binding": "DB",

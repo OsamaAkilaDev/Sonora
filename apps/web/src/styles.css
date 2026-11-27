@@ -41,7 +41,7 @@
   --inset: #1a1a1a;
   --hover: #1e1e1e;
   --line: #232323;
-  --ink: #ededed;
+  --ink: #e4e4e4;
   --ink-2: #c4c4c4;
   --slate: #9a9a9a;
   --ash: #868686;
@@ -111,6 +111,10 @@
   }
   ::placeholder {
     color: var(--ash);
+  }
+  /* Icons never shrink in tight flex rows (they'd squash and drift off-center). */
+  svg {
+    flex-shrink: 0;
   }
   /* Everything you can act on says so. */
   button:not(:disabled),
@@ -252,4 +256,21 @@
 }
 .theme-reveal::view-transition-new(root) {
   z-index: 1;
+}
+
+/* Typing indicator: a small rise and fade, staggered per dot via animation-delay. */
+.typing-dot {
+  animation: typing-dot 1.1s cubic-bezier(0.2, 0, 0, 1) infinite;
+}
+@keyframes typing-dot {
+  0%,
+  60%,
+  100% {
+    translate: 0 0;
+    opacity: 0.45;
+  }
+  30% {
+    translate: 0 -3px;
+    opacity: 1;
+  }
 }

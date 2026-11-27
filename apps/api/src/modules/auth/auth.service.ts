@@ -36,6 +36,8 @@ export async function signup(db: Db, input: SignupInput): Promise<User> {
     avatarSeed: crypto.randomUUID().slice(0, 8),
     about: "",
     status: "online",
+    connected: false,
+    lastSeenAt: null,
     createdAt: new Date(),
   };
   try {

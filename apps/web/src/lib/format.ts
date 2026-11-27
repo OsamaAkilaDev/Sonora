@@ -17,6 +17,43 @@ export function timeAgo(ts: number, now = Date.now()) {
   return "just now";
 }
 
+const startOfDay = (t: number) => new Date(t).setHours(0, 0, 0, 0);
+const daysAgo = (t: number) => Math.round((startOfDay(Date.now()) - startOfDay(t)) / 86_400_000);
+const hm = new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit" });
+
+/** Clock time: "10:42 AM". */
+export const clock = (t: number) => hm.format(t);
+
+/** Clock time without AM/PM, for tight spaces: "10:42". */
+export const shortClock = (t: number) =>
+  hm
+    .formatToParts(t)
+    .filter((p) => p.type !== "dayPeriod")
+    .map((p) => p.value)
+    .join("")
+    .trim();
+
+/** Day divider: "Today", "Yesterday", "Monday, Nov 24". */
+export function dayLabel(t: number) {
+  const d = daysAgo(t);
+  if (d === 0) return "Today";
+  if (d === 1) return "Yesterday";
+  return new Date(t).toLocaleDateString(undefined, {
+    weekday: "long",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+/** Compact list time: "10:42 AM", "Yesterday", "Tue", "Nov 24". */
+export function listTime(t: number) {
+  const d = daysAgo(t);
+  if (d === 0) return clock(t);
+  if (d === 1) return "Yesterday";
+  if (d < 7) return new Date(t).toLocaleDateString(undefined, { weekday: "short" });
+  return new Date(t).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
 /** Human device label from a user agent: "Chrome on Windows". */
 export function describeDevice(ua: string) {
   const browser = /Edg\//.test(ua)

@@ -103,7 +103,7 @@ export function AuthShowcase() {
                 {[0, 1, 2].map((d) => (
                   <i
                     key={d}
-                    className="size-[5px] animate-bounce rounded-full bg-slate"
+                    className="typing-dot size-[5px] rounded-full bg-slate"
                     style={{ animationDelay: `${d * 120}ms` }}
                   />
                 ))}
