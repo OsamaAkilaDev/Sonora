@@ -1,0 +1,6 @@
+harness/node_modules
+renders/
+review/
+music-options/
+# Iowa MIS source octaves (63 MB); assets/sfx/notes holds the sliced notes mix.py uses.
+assets/sfx/src/*.aif

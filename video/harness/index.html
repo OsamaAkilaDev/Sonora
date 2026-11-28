@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Sonora capture harness</title>
+    <script>
+      // A hidden capture tab never fires rAF or ResizeObserver: drive them from timers instead.
+      if (new URLSearchParams(location.search).has("capture")) {
+        window.requestAnimationFrame = (cb) => setTimeout(() => cb(performance.now()), 16);
+        window.cancelAnimationFrame = (id) => clearTimeout(id);
+        window.ResizeObserver = class {
+          constructor(cb) { this.cb = cb; }
+          observe(el) {
+            setTimeout(() => {
+              const r = el.getBoundingClientRect();
+              this.cb([{ target: el, contentRect: r, borderBoxSize: [{ inlineSize: r.width, blockSize: r.height }] }], this);
+            });
+          }
+          unobserve() {}
+          disconnect() {}
+        };
+      }
+      try { localStorage.clear(); } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.tsx"></script>
+  </body>
+</html>

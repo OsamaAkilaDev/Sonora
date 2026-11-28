@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Captured shots</title>
+    <!-- Only the saved files: proves a shot renders without the app. -->
+    <link rel="stylesheet" href="/app/app.css" />
+    <style>
+      body { margin: 0; padding: 24px; background: #6b6b6b; display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start; }
+      .item { margin: 0; }
+      .label { font: 12px monospace; color: #fff; margin-bottom: 6px; }
+      .shot { font-family: "Inter Variable", sans-serif; font-size: 15px; line-height: 1.5; font-feature-settings: "ss01", "cv11"; -webkit-font-smoothing: antialiased; color: var(--ink); position: relative; contain: layout paint; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      const names = new URLSearchParams(location.search).get("only")?.split(",") ??
+        ["thread-typing", "thread", "family", "dm-sent", "dm-seen", "upload-pending", "upload-sent", "list-before", "list-after", "switcher-empty", "switcher-lisbon", "incoming", "call", "group-2", "group-3", "group-6", "share"];
+      for (const n of names) {
+        const r = await fetch(`/app/shots/${n}.html`);
+        if (!r.ok) continue;
+        const f = document.createElement("div"); f.className = "item";
+        f.innerHTML = `<div class="label">${n}</div>${(await r.text()).replaceAll('src="assets/', 'src="/')}`;
+        document.body.append(f);
+      }
+      // Review only: show a frame of each person's clip in their tile (the film times these itself).
+      for (const v of document.querySelectorAll("video[data-feed^=cam-]")) {
+        v.poster = `/stock/feeds/${v.dataset.feed.slice(4)}.jpg`;
+      }
+    </script>
+  </body>
+</html>

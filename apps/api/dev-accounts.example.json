@@ -1,0 +1,20 @@
+{
+  "note": "Local dev accounts only (localhost D1).",
+  "accounts": [
+    {
+      "email": "phone.ana@sonora.test",
+      "username": "phone.ana",
+      "password": "phjX8Oa3CCn8wAJyx-A"
+    },
+    {
+      "email": "phone.ben@sonora.test",
+      "username": "phone.ben",
+      "password": "phjX8Oa3CCn8wAJyx-A"
+    },
+    {
+      "email": "phone.cy@sonora.test",
+      "username": "phone.cy",
+      "password": "phjX8Oa3CCn8wAJyx-A"
+    }
+  ]
+}

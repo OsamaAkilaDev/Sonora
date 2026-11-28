@@ -1,0 +1,6 @@
+@import "../../apps/web/src/styles.css";
+@source "../../apps/web/src";
+
+body {
+  margin: 0;
+}

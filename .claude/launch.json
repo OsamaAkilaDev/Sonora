@@ -7,6 +7,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "5180", "--directory", "mockup"],
       "port": 5180
+    },
+    {
+      "name": "harness",
+      "runtimeExecutable": "video/harness/node_modules/.bin/vite.exe",
+      "runtimeArgs": ["--config", "video/harness/vite.config.mjs"],
+      "port": 5190
     }
   ]
 }

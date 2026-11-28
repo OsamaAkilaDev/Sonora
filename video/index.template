@@ -1,0 +1,546 @@
+<!doctype html>
+<!-- Source of index.html: run `node video/build.mjs`. Not named *.html so HyperFrames sees one root. -->
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=1920, height=1080" />
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"></script>
+    <!-- Sonora's own compiled CSS, captured from the app (video/harness). -->
+    <link rel="stylesheet" href="assets/app/app.css" />
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        background: #060606;
+      }
+      #root {
+        position: relative;
+        width: 1920px;
+        height: 1080px;
+        overflow: hidden;
+        font-family: "Inter Variable", "Inter", sans-serif;
+      }
+      .scene,
+      .slot,
+      .frame,
+      .ground,
+      .disc,
+      .disc-fill {
+        position: absolute;
+        inset: 0;
+      }
+      /* The app's body type, which the shots inherit. */
+      .shot {
+        position: relative;
+        contain: layout paint;
+        color: var(--ink);
+        font-size: 15px;
+        line-height: 1.5;
+        font-feature-settings: "ss01", "cv11";
+        -webkit-font-smoothing: antialiased;
+      }
+      .stack {
+        display: inline-grid;
+      }
+      .stack > span {
+        grid-area: 1 / 1;
+      }
+      /* Shared screen: the repo's own code. */
+      .code-view {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0b0b0b;
+        padding: 18px 26px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        line-height: 1.62;
+        color: #c4c4c4;
+        text-align: left;
+      }
+      .code-file {
+        font-family: "Inter Variable", sans-serif;
+        font-size: 12px;
+        color: #868686;
+        margin-bottom: 10px;
+      }
+      .code-clip {
+        overflow: hidden;
+        height: calc(100% - 30px);
+      }
+      .code-lines {
+        margin: 0;
+        white-space: pre;
+      }
+      .code-lines i {
+        font-style: normal;
+      }
+      .code-lines .k {
+        color: #4cc7d6;
+      }
+      .code-lines .s {
+        color: #34c172;
+      }
+      .code-lines .n {
+        color: #e8ac2c;
+      }
+      .code-lines .ln {
+        display: inline-block;
+        width: 2.6em;
+        color: #4a4a4a;
+      }
+      /* Worded beat and end card. */
+      .line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        font-size: 76px;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        color: #171717;
+      }
+      .line span {
+        display: inline-block;
+        margin: 0 0.12em;
+      }
+      .line .accent {
+        color: #067d8d;
+      }
+      .lockup {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 320px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 34px;
+        color: #e4e4e4;
+      }
+      .mark {
+        height: 150px;
+        color: #12a9bc;
+      }
+      .mark svg {
+        height: 150px;
+        display: block;
+      }
+      .wordmark {
+        font-size: 116px;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+      }
+      .stackrow {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 580px;
+        display: flex;
+        justify-content: center;
+        gap: 46px;
+      }
+      .stackrow span {
+        display: block;
+        width: 52px;
+        height: 52px;
+        color: #868686;
+      }
+      .stackrow svg {
+        width: 52px;
+        height: 52px;
+        display: block;
+        fill: currentColor;
+      }
+      .repo {
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 720px;
+        text-align: center;
+        font-size: 40px;
+        font-weight: 500;
+        letter-spacing: -0.01em;
+        color: #c4c4c4;
+      }
+      .repo span {
+        display: inline-block;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root" data-composition-id="main" data-start="0" data-duration="{{t:bar(21)}}" data-width="1920" data-height="1080">
+      <!-- 1 · Live messaging (dark / cyan) -->
+      <div id="s-thread" class="scene clip" data-start="0" data-duration="{{t:bar(3)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #12a9bc 16%, #060606)"></div>
+        <div id="slot-thread" class="slot clip" data-start="0" data-duration="{{t:bar(3)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:thread}}><!--shot:thread--></div></div>
+        </div>
+      </div>
+
+      <!-- 2 · Reactions (light / amber) -->
+      <div id="s-family" class="scene clip" data-start="{{t:bar(3)}}" data-duration="{{t:bar(4)-bar(3)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #d99a16 16%, #faf9f6)"></div>
+        <div id="slot-family" class="slot clip" data-start="{{t:bar(3)}}" data-duration="{{t:bar(4)-bar(3)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:family}}><!--shot:family--></div></div>
+        </div>
+      </div>
+
+      <!-- 3 · Read receipts (dark / green) -->
+      <div id="s-dm" class="scene clip" data-start="{{t:bar(4)}}" data-duration="{{t:bar(5)-bar(4)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #34c172 14%, #060606)"></div>
+        <div id="slot-dm-sent" class="slot clip" data-start="{{t:bar(4)}}" data-duration="{{t:b(18)+0.22-bar(4)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:dm-sent}}><!--shot:dm-sent--></div></div>
+        </div>
+        <div id="slot-dm-seen" class="slot clip" data-start="{{t:b(18)}}" data-duration="{{t:bar(5)-b(18)}}" data-track-index="2">
+          <div class="frame"><div class="fit" {{fit:dm-seen}}><!--shot:dm-seen--></div></div>
+        </div>
+      </div>
+
+      <!-- 4 · Attachments (light / cyan) -->
+      <div id="s-upload" class="scene clip" data-start="{{t:bar(5)}}" data-duration="{{t:bar(7)-bar(5)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #0796a9 14%, #faf9f6)"></div>
+        <div id="slot-upload-pending" class="slot clip" data-start="{{t:bar(5)}}" data-duration="{{t:bar(6)-bar(5)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:upload-pending}}><!--shot:upload-pending--></div></div>
+        </div>
+        <div id="slot-upload-sent" class="slot clip" data-start="{{t:bar(6)}}" data-duration="{{t:bar(7)-bar(6)}}" data-track-index="2">
+          <div class="frame"><div class="fit" {{fit:upload-sent}}><!--shot:upload-sent--></div></div>
+        </div>
+      </div>
+
+      <!-- 5 · Live chat list (dark / amber) -->
+      <div id="s-list" class="scene clip" data-start="{{t:bar(7)}}" data-duration="{{t:bar(9)-bar(7)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #e8ac2c 13%, #060606)"></div>
+        <div id="slot-list-before" class="slot clip" data-start="{{t:bar(7)}}" data-duration="{{t:b(32)+0.5-bar(7)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:list-before}}><!--shot:list-before--></div></div>
+        </div>
+        <div id="slot-list-after" class="slot clip" data-start="{{t:b(32)+0.5}}" data-duration="{{t:bar(9)-b(32)-0.5}}" data-track-index="2">
+          <div class="frame"><div class="fit" {{fit:list-after}}><!--shot:list-after--></div></div>
+        </div>
+      </div>
+
+      <!-- 6 · Ctrl+K search (light / green) -->
+      <div id="s-switcher" class="scene clip" data-start="{{t:bar(9)}}" data-duration="{{t:bar(11)-bar(9)}}" data-track-index="0">
+        <div class="ground" style="background: color-mix(in oklab, #1fa95b 14%, #faf9f6)"></div>
+        <div id="slot-switcher-empty" class="slot clip" data-start="{{t:bar(9)}}" data-duration="{{t:b(37)+0.04-bar(9)}}" data-track-index="1">
+          <div class="frame"><div class="fit" {{fit:switcher-empty}}><!--shot:switcher-empty--></div></div>
+        </div>
+        <div id="slot-switcher-lisbon" class="slot clip" data-start="{{t:b(37)+0.04}}" data-duration="{{t:bar(11)-b(37)-0.04}}" data-track-index="2">
+          <div class="frame"><div class="fit" {{fit:switcher-lisbon|switcher-empty}}><!--shot:switcher-lisbon--></div></div>
+        </div>
+      </div>
+
+      <!-- 7 · 1:1 video call (dark / cyan) -->
+      <div id="s-call" class="scene gate" data-show="{{t:bar(11)}} {{t:bar(13)-bar(11)}}">
+        <div class="ground" style="background: color-mix(in oklab, #12a9bc 16%, #060606)"></div>
+        <div id="slot-incoming" class="slot gate" data-show="{{t:bar(11)}} {{t:bar(12)+0.2-bar(11)}}">
+          <div class="frame"><div class="fit" {{fit:incoming}}><!--shot:incoming--></div></div>
+        </div>
+        <div id="slot-call" class="slot gate" data-show="{{t:b(47)}} {{t:bar(13)-b(47)}}">
+          <div class="frame"><div class="fit" {{fit:call}}><!--shot:call--></div></div>
+        </div>
+      </div>
+
+      <!-- 8 · Group call (dark / green) -->
+      <div id="s-group" class="scene gate" data-show="{{t:bar(13)}} {{t:bar(16)-bar(13)}}">
+        <div class="ground" style="background: color-mix(in oklab, #34c172 14%, #060606)"></div>
+        <div id="slot-group-2" class="slot gate" data-show="{{t:bar(13)}} {{t:bar(14)-bar(13)}}">
+          <div class="frame"><div class="fit" {{fit:group-2}}><!--shot:group-2--></div></div>
+        </div>
+        <div id="slot-group-3" class="slot gate" data-show="{{t:bar(14)}} {{t:bar(15)-bar(14)}}">
+          <div class="frame"><div class="fit" {{fit:group-3}}><!--shot:group-3--></div></div>
+        </div>
+        <div id="slot-group-6" class="slot gate" data-show="{{t:bar(15)}} {{t:bar(16)-bar(15)}}">
+          <div class="frame"><div class="fit" {{fit:group-6}}><!--shot:group-6--></div></div>
+        </div>
+      </div>
+
+      <!-- 9 · Screen share (dark / amber) -->
+      <div id="s-share" class="scene gate" data-show="{{t:bar(16)}} {{t:bar(17)-bar(16)}}">
+        <div class="ground" style="background: color-mix(in oklab, #e8ac2c 13%, #060606)"></div>
+        <div id="slot-share" class="slot gate" data-show="{{t:bar(16)}} {{t:bar(17)-bar(16)}}">
+          <div class="frame"><div class="fit" {{fit:share}}><!--shot:share--></div></div>
+        </div>
+      </div>
+
+      <!-- 10 · What you can't see (light / ink) -->
+      <div id="s-words" class="scene clip" data-start="{{t:bar(17)}}" data-duration="{{t:bar(19)-bar(17)}}" data-track-index="0">
+        <div class="ground" style="background: #faf9f6"></div>
+        <p id="w1" class="line" style="top: 330px"><span>One</span><span>Cloudflare</span><span>Worker</span></p>
+        <p id="w2" class="line" style="top: 470px"><span>Durable</span><span>Objects</span><span>for</span><span>realtime</span></p>
+        <p id="w3" class="line" style="top: 610px"><span class="accent">Peer-to-peer</span><span>WebRTC</span><span>calls</span></p>
+      </div>
+
+      <!-- 11 · End card (dark / cyan) -->
+      <div id="s-end" class="scene clip" data-start="{{t:bar(19)}}" data-duration="{{t:bar(21)-bar(19)}}" data-track-index="0">
+        <div class="ground" style="background: #060606"></div>
+        <div class="lockup">
+          <div id="mark" class="mark">
+            <!-- The Sonora mark, from apps/web/src/ui/logo.tsx. -->
+            <svg viewBox="0 0 30 50" fill="currentColor" aria-hidden="true"><path d="M22.384 0.342497C22.384 3.26237 17.4527 5.12728 12.2305 7.1002C6.46424 9.2801 0.5 11.5335 0.5 15.6033C0.5 19.4047 6.96471 21.6406 13.8074 24.0089C14.2419 24.1594 14.6739 24.3094 15.1089 24.4604C17.9237 26.7648 20.5921 29.2722 20.5921 33.3895C20.5921 37.8158 17.0573 39.8857 13.6394 41.8877C11.0835 43.3816 6.86472 46.1865 6.86472 49.6558C6.86472 49.8458 7.04521 49.9983 7.2652 49.9983C7.48519 49.9983 7.66068 49.8458 7.66068 49.6553C7.66068 46.052 12.548 44.25 17.7212 42.3426C23.3385 40.2737 29.1467 38.1313 29.1467 33.389C29.1467 28.6722 21.7936 26.0359 14.5329 23.521C11.7085 21.2396 9.05462 19.0742 9.05462 15.6028C9.05462 11.8455 12.714 9.66308 16.2518 7.55368C18.8372 6.01075 23.18 3.12538 23.18 0.341997C23.18 0.154009 23.002 1.31132e-05 22.782 1.31132e-05C22.562 1.31132e-05 22.384 0.154508 22.384 0.342497ZM13.4219 7.56868C13.7784 7.41968 14.1324 7.27319 14.4839 7.1242C14.3839 7.17069 14.2859 7.21719 14.1859 7.26319C9.5106 9.4211 4.67681 11.655 4.67681 15.6028C4.67681 18.3007 7.15471 20.2146 10.3921 21.972C6.30274 20.1801 3.08539 18.2757 3.08539 15.6028C3.08539 11.865 8.34165 9.68008 13.4219 7.56868ZM16.5248 41.8737C16.1903 42.0091 15.8608 42.1446 15.5313 42.2791C15.6043 42.2461 15.6778 42.2131 15.7488 42.1801C20.2821 40.1292 24.9694 38.0093 24.9694 33.389C24.9694 30.1627 22.389 27.9108 19.0662 25.9909C23.2385 27.9258 26.5608 30.1667 26.5608 33.389C26.5613 37.7968 21.4586 39.8707 16.5248 41.8737ZM13.9374 42.6196C14.2254 42.4721 14.5134 42.3241 14.8064 42.1766C18.8247 40.1247 22.98 38.0033 22.98 33.389C22.98 30.0287 20.7291 27.7238 17.9022 25.7489C21.5741 27.7363 24.5719 30.0287 24.5719 33.389C24.5719 37.8018 19.9946 39.8742 15.5658 41.8762C15.0164 42.1251 14.4719 42.3716 13.9374 42.6196ZM5.0778 15.6028C5.0778 11.8605 9.80409 9.67758 14.3744 7.56368C14.9309 7.30719 15.4828 7.0532 16.0248 6.79721C15.7268 6.95371 15.4243 7.1097 15.1239 7.26619C10.9665 9.42659 6.66723 11.6605 6.66723 15.6033C6.66723 18.4302 8.85963 20.3956 11.645 22.2315C8.01217 20.3656 5.0778 18.4077 5.0778 15.6028ZM1.29597 15.6028C1.29597 12.7439 4.85781 10.796 9.07662 9.07461C5.52928 10.7615 2.6904 12.727 2.6904 15.6028C2.6904 17.6952 4.46782 19.3137 7.07271 20.7566C3.68836 19.2842 1.29597 17.6707 1.29597 15.6028ZM20.9901 33.389C20.9901 29.8942 19.1542 27.5408 16.9058 25.5099C19.9966 27.5508 22.582 29.8882 22.582 33.389C22.582 37.8078 18.5247 39.8792 14.6039 41.8812C13.8764 42.2511 13.1464 42.6246 12.441 43.0151C12.9049 42.7306 13.3809 42.4511 13.8619 42.1691C17.3673 40.1172 20.9901 37.9958 20.9901 33.389ZM28.3533 33.389C28.3533 36.7839 24.8669 38.7758 20.7486 40.4417C24.1959 38.7913 26.9593 36.7544 26.9593 33.389C26.9593 30.8181 24.9989 28.8677 22.194 27.2113C25.7749 28.8812 28.3533 30.8241 28.3533 33.389ZM8.65664 15.6028C8.65664 18.5447 10.4536 20.5611 12.6775 22.4655C9.6086 20.5346 7.06471 18.5352 7.06471 15.6028C7.06471 11.853 11.266 9.67308 15.3283 7.56118C15.9313 7.24619 16.5318 6.93371 17.1128 6.61872C16.7538 6.83621 16.3903 7.0557 16.0238 7.27319C12.4015 9.43359 8.65664 11.6675 8.65664 15.6028Z"/></svg>
+          </div>
+          <div id="wordmark" class="wordmark">Sonora</div>
+        </div>
+        <div id="stackrow" class="stackrow">
+          <!--icons-->
+        </div>
+        <p id="repo" class="repo"><span>github.com/</span><span>OsamaAkilaDev/</span><span>Sonora</span></p>
+      </div>
+
+      <!-- Transitions: a disc in the next beat's accent grows from the element that causes it. -->
+      <!--discs-->
+
+      <audio id="music" class="clip" data-start="0" data-duration="{{t:bar(21)}}" data-media-start="0" data-volume="1" data-track-index="9" src="assets/audio/mix.wav"></audio>
+    </div>
+
+    <script>
+      /* Night Owl at 129 BPM, t=0 on the drop. Beat n from its index, rounded to a frame. */
+      const FPS = 30;
+      const BEAT = 60 / 129;
+      const b = (n) => Math.round(n * BEAT * FPS) / FPS;
+      const bar = (n) => b(n * 4);
+
+      const tl = gsap.timeline({ paused: true });
+      const $ = (s, root = document) => root.querySelector(s);
+      const $$ = (s, root = document) => [...root.querySelectorAll(s)];
+      const ease = "expo.out";
+
+      /* Scenes holding video aren't timed clips (a timed parent would offset the video's start):
+         the timeline shows them over data-show="start duration". */
+      for (const el of $$(".gate")) {
+        const [start, dur] = el.dataset.show.split(" ").map(Number);
+        tl.set(el, { autoAlpha: 0 }, 0).set(el, { autoAlpha: 1 }, start).set(el, { autoAlpha: 0 }, start + dur);
+      }
+
+      /** An element's box in shot pixels, recorded at capture (scenes off screen have no layout). */
+      const box = (el) => el.dataset.r.split(" ").map(Number);
+      /** An element's centre in frame pixels. */
+      function centre(el) {
+        const fit = el.closest(".fit");
+        const [x, y, w, h] = box(el);
+        const k = +fit.dataset.k;
+        return { x: +fit.dataset.x + k * (x + w / 2), y: +fit.dataset.y + k * (y + h / 2) };
+      }
+
+      /** Swappable text: every value stacked in one place, shown one at a time. */
+      function stack(el, items) {
+        el.textContent = "";
+        el.classList.add("stack");
+        return items.map(({ text, cls }) => {
+          const s = document.createElement("span");
+          s.textContent = text;
+          if (cls) s.className = cls;
+          el.append(s);
+          return s;
+        });
+      }
+      function show(spans, times) {
+        spans.forEach((s, i) => {
+          tl.set(s, { opacity: i === 0 ? 1 : 0 }, 0);
+          if (i) tl.set(spans[i - 1], { opacity: 0 }, times[i]).set(s, { opacity: 1 }, times[i]);
+        });
+      }
+
+      /** Messages arriving at the bottom of a feed: the history lifts, the new line lands. */
+      function land(ids, times) {
+        const rows = ids.map((id) => document.getElementById(id));
+        const list = rows[0].parentElement;
+        const [, top, , h] = box(list);
+        const bottom = (el) => box(el)[1] + box(el)[3] - top;
+        const lift = (i) => (i < rows.length ? h - 12 - bottom(rows[i].previousElementSibling) : 0);
+        tl.set(list, { y: lift(0) }, 0);
+        rows.forEach((r, i) => {
+          tl.set(r, { opacity: 0 }, 0);
+          tl.to(list, { y: lift(i + 1), duration: 0.42, ease }, times[i] - 0.06);
+          tl.fromTo(r, { opacity: 0, y: 10 }, { opacity: 1, y: 0, duration: 0.36, ease }, times[i] - 0.06);
+        });
+      }
+
+      /** Each new screen comes in a touch large and settles. */
+      function settle(slotId, t) {
+        tl.fromTo($(`#${slotId} .shot`), { scale: 1.025 }, { scale: 1, duration: 0.7, ease }, t);
+      }
+
+      /** A tile's speaking ring (the app's cyan inset ring). */
+      const ring = (tile) => $(":scope > span.pointer-events-none", tile);
+      function speak(tile, on, off) {
+        tl.set(ring(tile), { opacity: 0 }, 0);
+        tl.to(ring(tile), { opacity: 1, duration: 0.15 }, on);
+        if (off) tl.to(ring(tile), { opacity: 0, duration: 0.15 }, off);
+      }
+
+      /** The call timer, ticking once a second from `from` (seconds into the call). */
+      function timer(slotId, from, start, end) {
+        const el = $(`#${slotId} .tabular-nums`);
+        const n = Math.ceil(end - start);
+        const fmt = (s) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+        const spans = stack(el, Array.from({ length: n }, (_, i) => ({ text: fmt(from + i) })));
+        show(spans, spans.map((_, i) => start + i));
+      }
+
+      /** Per-word blur-in (titles land, then hold still). */
+      function words(line, t) {
+        $$("span", line).forEach((w, i) =>
+          tl.fromTo(w, { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.16, ease: "power2.out" }, t + i * 0.07),
+        );
+      }
+
+      /* 1 · Live messaging: "karim typing…", then his message lands, then a reply. */
+      {
+        const sub = $("#s-thread header p");
+        const [typing, members] = stack(sub, [{ text: "karim typing…", cls: "text-cyan-ink" }, { text: sub.textContent }]);
+        show([typing, members], [0, b(4) - 0.06]);
+        land(["thread-msg-m007", "thread-msg-m008"], [b(4), b(7)]);
+      }
+
+      /* 2 · Reactions: the 😂 chip bursts in, then counts up as a second person reacts. */
+      {
+        settle("slot-family", bar(3));
+        const chip = $("#s-family button[title*='reacted']");
+        const [emoji, count] = chip.children;
+        show(stack(count, [{ text: "1" }, { text: "2" }]), [0, b(14)]);
+        tl.set(chip, { opacity: 0 }, 0);
+        tl.fromTo(chip, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.6)" }, b(13) - 0.04);
+        tl.fromTo(emoji, { scale: 1.7 }, { scale: 1, duration: 0.45, ease }, b(13) - 0.04);
+        tl.fromTo(chip, { scale: 1.14 }, { scale: 1, duration: 0.35, ease: "back.out(3)" }, b(14));
+      }
+
+      /* 3 · Read receipts: my message sends, then "Sent" turns into "Seen". */
+      {
+        settle("slot-dm-sent", bar(4));
+        land(["dm-sent-msg-m018"], [b(17)]);
+        tl.fromTo($("#slot-dm-seen .shot"), { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, b(18));
+      }
+
+      /* 4 · Attachments: the photo uploads (its ring fills), sends, and lands in the thread. */
+      {
+        settle("slot-upload-pending", bar(5));
+        const chip = $("#slot-upload-pending section ul li");
+        const arc = $$("circle", chip)[1];
+        const veil = $("span.absolute.inset-0", chip);
+        const c = 2 * Math.PI * 13;
+        tl.fromTo(chip, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.45, ease: "back.out(2)" }, b(21) - 0.04);
+        tl.fromTo(arc, { attr: { "stroke-dashoffset": c } }, { attr: { "stroke-dashoffset": 0 }, duration: b(23) - b(21.5), ease: "power1.inOut" }, b(21.5));
+        tl.to(veil, { opacity: 0, duration: 0.2 }, b(23));
+        land(["upload-sent-msg-m009"], [bar(6)]);
+      }
+
+      /* 5 · Live chat list: Lisbon's new message lifts it to the top; badges and typing update. */
+      {
+        settle("slot-list-before", bar(7));
+        const after = Object.fromEntries($$("#slot-list-after li").map((li) => [$("a", li).getAttribute("href"), box(li)[1]]));
+        for (const li of $$("#slot-list-before li"))
+          tl.to(li, { y: after[$("a", li).getAttribute("href")] - box(li)[1], duration: 0.5, ease: "expo.inOut" }, b(32));
+        const badge = $("#slot-list-after li:first-child span.bg-cyan");
+        tl.fromTo(badge, { scale: 0.5 }, { scale: 1, duration: 0.4, ease: "back.out(3)" }, b(32) + 0.5);
+      }
+
+      /* 6 · Ctrl+K: "lisbon" types in, and message search hits appear. */
+      {
+        settle("slot-switcher-empty", bar(9));
+        const input = $("#slot-switcher-empty input");
+        [..."lisbon"].forEach((_, i) => tl.set(input, { attr: { value: "lisbon".slice(0, i + 1) } }, b(36) + 0.05 + i * 0.08));
+        $$("#slot-switcher-lisbon [role=option]").forEach((o, i) =>
+          tl.fromTo(o, { opacity: 0 }, { opacity: 1, duration: 0.2, ease: "power1.out" }, b(37) + 0.04 + i * 0.05),
+        );
+      }
+
+      /* 7 · 1:1 call: the incoming card rings, Answer opens the call from that button. */
+      {
+        settle("slot-incoming", bar(11));
+        const card = $("#slot-incoming [role=alertdialog]");
+        const ringing = $(".ringing", card);
+        const answer = $("[aria-label='Answer with video']", card);
+        tl.fromTo(card, { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 0.4, ease }, b(45) - 0.04);
+        tl.fromTo(
+          ringing,
+          { boxShadow: "0 0 0 0 rgba(18,169,188,0.55)" },
+          { boxShadow: "0 0 0 18px rgba(18,169,188,0)", duration: 0.75, ease: "power3.out", repeat: 1, repeatDelay: 0.18 },
+          b(45),
+        );
+        tl.fromTo(answer, { scale: 1 }, { scale: 0.9, duration: 0.08, yoyo: true, repeat: 1, ease: "power1.inOut" }, b(47) - 0.08);
+        const p = centre(answer);
+        const r = Math.hypot(Math.max(p.x, 1920 - p.x), Math.max(p.y, 1080 - p.y));
+        tl.fromTo(
+          $("#slot-call .frame"),
+          { clipPath: `circle(0px at ${p.x}px ${p.y}px)` },
+          { clipPath: `circle(${r}px at ${p.x}px ${p.y}px)`, duration: bar(12) - b(47), ease: "power2.in" },
+          b(47),
+        );
+        const [omar] = $$("#slot-call figure");
+        speak(omar, bar(12) + 0.2);
+        timer("slot-call", 0, bar(12), bar(13));
+      }
+
+      /* 8 · Group call: people join (2 → 3 → 6), the speaking ring moves between them. */
+      {
+        const g2 = $$("#slot-group-2 figure");
+        const g3 = $$("#slot-group-3 figure");
+        const g6 = $$("#slot-group-6 figure");
+        speak(g2[0], bar(13) + 0.1);
+        tl.fromTo(g3[1], { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.45, ease }, bar(14) - 0.04);
+        speak(g3[1], b(57));
+        [2, 3, 4].forEach((i, n) =>
+          tl.fromTo(g6[i], { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.45, ease }, bar(15) - 0.04 + n * 0.08),
+        );
+        speak(g6[3], b(61), b(63));
+        speak(g6[4], b(63));
+        timer("slot-group-2", 252, bar(13), bar(14));
+        timer("slot-group-3", 252 + Math.round(bar(14) - bar(13)), bar(14), bar(15));
+        timer("slot-group-6", 252 + Math.round(bar(15) - bar(13)), bar(15), bar(16));
+      }
+
+      /* 9 · Screen share: kenji's screen takes the stage, his face moves to the strip. */
+      {
+        const tiles = $$("#slot-share figure");
+        tl.fromTo(tiles[0], { opacity: 0, scale: 0.96 }, { opacity: 1, scale: 1, duration: 0.5, ease }, bar(16) - 0.04);
+        tl.fromTo($("#slot-share .code-lines"), { y: 0 }, { y: -64, duration: bar(17) - bar(16), ease: "none" }, bar(16));
+        speak(tiles[4], bar(16) + 0.2);
+        timer("slot-share", 252 + Math.round(bar(16) - bar(13)), bar(16), bar(17));
+      }
+
+      /* 10 · What can't be seen: three lines on the beat. */
+      words($("#w1"), bar(17));
+      words($("#w2"), b(70));
+      words($("#w3"), bar(18));
+
+      /* 11 · End card: the mark rises in (as in the app's own intro), then the name, stack and repo. */
+      tl.fromTo("#mark", { clipPath: "inset(100% 0 0 0)" }, { clipPath: "inset(0% 0 0 0)", duration: 0.7, ease }, bar(19));
+      tl.fromTo("#wordmark", { opacity: 0, filter: "blur(6px)" }, { opacity: 1, filter: "blur(0px)", duration: 0.3, ease: "power2.out" }, b(77));
+      $$("#stackrow span").forEach((s, i) =>
+        tl.fromTo(s, { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4, ease }, b(78) + i * 0.05),
+      );
+      words($("#repo"), bar(20));
+
+      /* Discs: grow into each new beat from what caused it, then dissolve over it. */
+      const at = (sel) => centre($(sel));
+      const seams = [
+        [bar(3), "#d99a16", at("#thread-msg-m008")],
+        [bar(4), "#34c172", at("#s-family button[title*='reacted']")],
+        [bar(5), "#0796a9", at("#dm-seen-msg-m018 p:last-of-type")],
+        [bar(7), "#e8ac2c", at("#upload-sent-msg-m009 img")],
+        [bar(9), "#1fa95b", at("#slot-list-after li")],
+        [bar(11), "#12a9bc", centre($$("#slot-switcher-lisbon [role=option]")[1])],
+        [bar(13), "#34c172", centre($("#slot-call figure"))],
+        [bar(16), "#e8ac2c", centre($$("#slot-group-6 figure")[4])],
+        [bar(17), "#171717", centre($("#slot-share figure"))],
+        [bar(19), "#12a9bc", { x: 960, y: 652 }],
+      ];
+      seams.forEach(([t, color, p], i) => {
+        const fill = $(`#disc-${i} .disc-fill`);
+        fill.style.background = color;
+        const r = Math.hypot(Math.max(p.x, 1920 - p.x), Math.max(p.y, 1080 - p.y));
+        tl.fromTo(fill, { clipPath: `circle(0px at ${p.x}px ${p.y}px)`, opacity: 1 }, { clipPath: `circle(${r}px at ${p.x}px ${p.y}px)`, duration: 0.42, ease: "power2.in" }, t - 0.42);
+        tl.to(fill, { opacity: 0, duration: 0.4, ease: "power1.out" }, t);
+      });
+
+      window.__timelines["main"] = tl;
+    </script>
+  </body>
+</html>
