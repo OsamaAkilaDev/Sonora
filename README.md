@@ -85,17 +85,3 @@ bun dev
 | `bun run deploy` | Remote D1 migrations, then build and deploy the Worker |
 
 To deploy your own copy, point `database_id` and the B2 vars in `apps/api/wrangler.jsonc` at your own resources, and set the secrets with `wrangler secret put`.
-
-## Limits
-
-- Calls are a mesh, so they're capped at 6 people. Every peer sends its media to every other peer.
-- ICE uses Cloudflare's public STUN server only. Without a TURN relay, calls between two strict NATs may not connect.
-
-## The film
-
-The video is built from the app's real components on fixed data, with no backend running, and composed with [HyperFrames](https://hyperframes.studio). See `video/` and [`VIDEO_BRIEF.md`](VIDEO_BRIEF.md).
-
-- **Music:** "Night Owl" by Broke For Free, [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/).
-- **People:** stock footage from Pexels.
-- **Sound effects:** the University of Iowa Electronic Music Studios and Pixabay.
-- **Full credits:** [`video/assets/CREDITS.md`](video/assets/CREDITS.md).
